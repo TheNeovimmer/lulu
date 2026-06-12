@@ -1,5 +1,14 @@
 @charset "UTF-8";
 
+/* ── Royalist local font ── */
+@font-face {
+  font-family: 'Royalist';
+  src: url('/assets/fonts/royalist.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── Card Enhancements ── */
 
 .card-luma {
@@ -739,14 +748,14 @@ select.form-control-luma option {
 
 /* ── Home Page: New Design (from React Figma) ── */
 
-.font-serif { font-family: 'Playfair Display', serif; }
+.font-serif { font-family: 'Royalist', 'Royalist', 'Playfair Display', serif; }
 .font-poppins { font-family: 'Poppins', sans-serif; }
 .font-inter { font-family: 'Inter', sans-serif; }
 .font-montserrat { font-family: 'Montserrat', sans-serif; }
 
 /* Navbar pill */
 .nav-pill-luma {
-  background: rgba(247, 197, 213, 0.12);
+  background: rgba(247, 197, 213, 0.2);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 60px;
@@ -756,7 +765,7 @@ select.form-control-luma option {
 }
 .nav-pill-luma .nav-link {
   font-family: 'Poppins', sans-serif;
-  font-weight: 600;
+  font-weight: 800;
   color: rgba(255,255,255,0.8) !important;
   padding: 8px 18px !important;
   border-radius: 40px;
@@ -788,7 +797,7 @@ select.form-control-luma option {
 
 /* Hero display */
 .hero-display {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Royalist', 'Playfair Display', serif;
   font-size: clamp(2.8rem, 6vw, 5rem);
   font-weight: 800;
   line-height: 1.08;
@@ -1101,28 +1110,29 @@ select.form-control-luma option {
 .faq-item-luma:hover {
   border-color: rgba(201,75,114,0.3);
 }
+.faq-item-luma {
+  cursor: pointer;
+  user-select: none;
+}
 .faq-item-luma .faq-question {
   font-family: 'Montserrat', sans-serif;
   font-weight: 500;
   color: #fff;
-  font-size: 1rem;
+  font-size: 1.125rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  user-select: none;
 }
 .faq-item-luma .faq-toggle {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: 40px;
   border: 1px solid #ffffff;
   background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 1rem;
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
@@ -1131,10 +1141,10 @@ select.form-control-luma option {
 }
 .faq-item-luma .faq-answer {
   font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   color: rgba(255,255,255,0.5);
   line-height: 1.7;
-  padding-top: 16px;
+  padding: 8px 24px 16px;
   display: none;
 }
 .faq-item-luma .faq-answer.open {
@@ -1143,7 +1153,7 @@ select.form-control-luma option {
 
 /* Contact section */
 .contact-section-luma h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Royalist', 'Playfair Display', serif;
   font-weight: 800;
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   color: #fff;
@@ -1217,7 +1227,7 @@ select.form-control-luma option {
   padding: 48px 0 32px;
 }
 .footer-luma .footer-logo {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Royalist', 'Playfair Display', serif;
   font-weight: 800;
   color: #F0A0BB;
   font-size: 1.8rem;
@@ -1280,10 +1290,10 @@ select.form-control-luma option {
 
 /* Section heading generic */
 .section-heading-luma {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Royalist', 'Playfair Display', serif;
   font-weight: 400;
   color: #fff;
-  font-size: clamp(2rem, 5vw, 5rem);
+  font-size: clamp(2rem, 5vw, 6rem);
   line-height: 0.95;
 }
 .section-subheading-luma {
@@ -1322,7 +1332,8 @@ select.form-control-luma option {
     padding: 32px 0 24px;
   }
   .section-heading-luma {
-    font-size: clamp(1.6rem, 8vw, 2.5rem) !important;
+    font-size: clamp(1.6rem, 8vw, 3rem) !important;
+    white-space: normal !important;
   }
   .section-subheading-luma {
     font-size: clamp(0.9rem, 4vw, 1.2rem) !important;

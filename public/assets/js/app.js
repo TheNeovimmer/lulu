@@ -85,8 +85,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ── Home page inline FAQ toggle ──
 function toggleFaq(el) {
-  var answer = el.querySelector('.faq-answer');
+  var answer = el.nextElementSibling;
   var toggle = el.querySelector('.faq-toggle');
-  if (answer) answer.classList.toggle('open');
+  if (answer && answer.classList.contains('faq-answer')) answer.classList.toggle('open');
   if (toggle) toggle.classList.toggle('open');
 }
