@@ -1,0 +1,25 @@
+.admin-form { max-width: 800px; }
+.admin-form .form-group { margin-bottom: 25px; }
+.admin-form label { display: block; color: white; margin-bottom: 8px; font-weight: 600; }
+.admin-form input[type="text"],
+.admin-form input[type="email"],
+.admin-form textarea,
+.admin-form select { width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.10); border: 1px solid var(--accent-pink); border-radius: 10px; color: white; font-size: 15px; }
+.admin-form select option { background: var(--bg-dark); }
+.admin-form .help-text { color: var(--text-muted); font-size: 13px; margin-top: 5px; }
+
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; }
+.status-badge.published { background: rgba(0, 200, 83, 0.2); color: #00C853; }
+.status-badge.draft { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+.status-badge.pending { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+.status-badge.approved { background: rgba(0, 200, 83, 0.2); color: #00C853; }
+.status-badge.rejected { background: rgba(255, 0, 0, 0.2); color: #FF6B6B; }
+
+.pagination { display: flex; gap: 10px; margin-top: 30px; justify-content: center; }
+.pagination a, .pagination span {
+  padding: 8px 16px;
+  background: var(--glass-bg);
+  border-radius: 5px;
+  color: white;
+}
+.pagination .active { background: var(--accent-light); color: var(--bg-dark); }

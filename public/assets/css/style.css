@@ -1,0 +1,133 @@
+/* LUMA Bootstrap 5 Dark Theme - Custom overrides */
+:root {
+  --luma-bg: #2E0F1C;
+  --luma-card: #632538;
+  --luma-pink: #C94B72;
+  --luma-light: #F0A0BB;
+  --luma-teal: #70A2B4;
+  --luma-text: #F5F5F5;
+  --luma-muted: #9FB3DF;
+  --luma-glass: rgba(255, 255, 255, 0.10);
+}
+
+[data-bs-theme="dark"] {
+  --bs-body-bg: #2E0F1C;
+  --bs-body-color: #F5F5F5;
+  --bs-primary: #F0A0BB;
+  --bs-primary-rgb: 240, 160, 187;
+  --bs-secondary: #632538;
+  --bs-secondary-rgb: 99, 37, 56;
+  --bs-card-bg: #632538;
+  --bs-card-border-color: #C94B72;
+  --bs-border-color: #C94B72;
+  --bs-navbar-bg: rgba(46, 15, 28, 0.95);
+  --bs-link-color: #F0A0BB;
+  --bs-link-hover-color: #C94B72;
+}
+
+@font-face {
+  font-family: 'Royalist';
+  src: url('/assets/fonts/royalist.woff2') format('woff2');
+}
+
+.font-heading { font-family: 'Royalist', serif; }
+.text-pink { color: var(--luma-pink) !important; }
+.text-light-pink { color: var(--luma-light) !important; }
+.text-teal { color: var(--luma-teal) !important; }
+.bg-luma { background-color: var(--luma-bg) !important; }
+.bg-luma-card { background-color: var(--luma-card) !important; }
+.border-pink { border-color: var(--luma-pink) !important; }
+
+.btn-luma {
+  background: var(--luma-light);
+  color: var(--luma-bg);
+  border: none;
+  border-radius: 50px;
+  padding: 12px 30px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.btn-luma:hover { opacity: 0.9; color: var(--luma-bg); }
+.btn-outline-luma {
+  background: transparent;
+  color: white;
+  border: 1px solid var(--luma-pink);
+  border-radius: 50px;
+  padding: 12px 30px;
+  transition: all 0.2s;
+}
+.btn-outline-luma:hover { background: var(--luma-pink); color: white; }
+
+.hero-title { font-family: 'Royalist', serif; font-size: 96px; line-height: 1; }
+.hero-subtitle { font-size: 22px; font-weight: 300; color: var(--luma-muted); }
+.section-title { font-family: 'Royalist', serif; font-size: 64px; }
+.section-subtitle { font-size: 32px; color: var(--luma-teal); }
+
+.card-luma {
+  background: var(--luma-card);
+  border: 1px solid var(--luma-pink);
+  border-radius: 10px;
+}
+
+.card-testimonial {
+  background: var(--luma-glass);
+  border: 1px solid var(--luma-pink);
+  border-radius: 10px;
+  padding: 30px;
+}
+
+.form-control-luma {
+  background: var(--luma-glass);
+  border: 1px solid var(--luma-pink);
+  border-radius: 50px;
+  color: white;
+  padding: 18px 24px;
+}
+.form-control-luma:focus {
+  background: var(--luma-glass);
+  border-color: var(--luma-light);
+  color: white;
+  box-shadow: 0 0 0 0.2rem rgba(240, 160, 187, 0.25);
+}
+.form-control-luma::placeholder { color: rgba(255,255,255,0.6); }
+
+.stat-number { font-size: 36px; font-weight: 600; }
+.filter-pill {
+  padding: 9px 12px;
+  background: rgba(240, 160, 187, 0.37);
+  border-radius: 50px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-pill.active, .filter-pill:hover { background: var(--luma-light); color: var(--luma-bg); }
+
+.sidebar-nav .nav-link {
+  color: white;
+  padding: 10px 0;
+  font-weight: 300;
+}
+.sidebar-nav .nav-link:hover { color: var(--luma-light); }
+
+.sidebar-wrapper { width: 250px; min-height: 100vh; }
+
+.status-badge { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; }
+.status-badge.published { background: rgba(0, 200, 83, 0.2); color: #00C853; }
+.status-badge.draft { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+.status-badge.pending { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+.status-badge.approved { background: rgba(0, 200, 83, 0.2); color: #00C853; }
+.status-badge.rejected { background: rgba(255, 0, 0, 0.2); color: #FF6B6B; }
+.status-badge.open { background: rgba(33, 150, 243, 0.2); color: #2196F3; }
+.status-badge.in_progress { background: rgba(255, 152, 0, 0.2); color: #FF9800; }
+.status-badge.closed { background: rgba(0, 200, 83, 0.2); color: #00C853; }
+.status-badge.active { background: rgba(0, 200, 83, 0.2); color: #00C853; }
+.status-badge.suspended { background: rgba(255, 0, 0, 0.2); color: #FF6B6B; }
+
+.bg-luma-glass { background: var(--luma-glass); }
+
+.hero-section { min-height: 80vh; display: flex; align-items: center; }
+
+.blog-card { transition: transform 0.2s; }
+.blog-card:hover { transform: translateY(-4px); }
+.blog-card img { width: 100%; height: 260px; object-fit: cover; }

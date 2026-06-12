@@ -1,0 +1,37 @@
+@media (max-width: 1024px) {
+  .blog-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-title { font-size: 64px; }
+  .section-title { font-size: 64px; }
+  .stats-bar { gap: 40px; }
+  .footer-inner { flex-direction: column; gap: 30px; }
+}
+
+@media (max-width: 768px) {
+  .main-nav { display: none; }
+  .main-nav.open { display: flex; flex-direction: column; position: absolute; top: 80px; left: 0; right: 0; background: var(--bg-dark); padding: 20px; }
+  .hamburger { display: block; }
+  .hero-title { font-size: 48px; }
+  .hero-section { padding: 40px 20px; }
+  .hero-cta { flex-direction: column; }
+  .hero-features { flex-direction: column; align-items: center; }
+  .section-title { font-size: 48px; }
+  .section-subtitle { font-size: 24px; }
+  .blog-grid { grid-template-columns: 1fr; }
+  .stats-bar { gap: 20px; }
+  .auth-container { padding: 40px 20px; }
+  .admin-sidebar { width: 200px; }
+  .admin-main { margin-left: 200px; padding: 20px; }
+  .admin-wrapper { flex-direction: column; }
+  .admin-sidebar { position: relative; width: 100%; height: auto; }
+  .admin-main { margin-left: 0; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 36px; }
+  .section-title { font-size: 36px; }
+  .card { padding: 25px; }
+  .card h3 { font-size: 20px; }
+  .card p { font-size: 16px; }
+  .filter-pills { gap: 5px; }
+  .filter-pill { font-size: 13px; padding: 6px 10px; }
+}
