@@ -23,7 +23,18 @@ class Database {
 
     public function query($sql, $params = []) {
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        foreach ($params as $key => $value) {
+            $type = \PDO::PARAM_STR;
+            if (is_int($value)) {
+                $type = \PDO::PARAM_INT;
+            } elseif (is_bool($value)) {
+                $type = \PDO::PARAM_BOOL;
+            } elseif (is_null($value)) {
+                $type = \PDO::PARAM_NULL;
+            }
+            $stmt->bindValue(is_int($key) ? $key + 1 : $key, $value, $type);
+        }
+        $stmt->execute();
         return $stmt;
     }
 

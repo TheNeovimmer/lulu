@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS settings;
 DROP TABLE IF EXISTS tickets;
 DROP TABLE IF EXISTS community_comments;
+DROP TABLE IF EXISTS community_likes;
 DROP TABLE IF EXISTS community_posts;
 DROP TABLE IF EXISTS resources;
 DROP TABLE IF EXISTS vaccinations;
@@ -211,6 +212,17 @@ CREATE TABLE community_comments (
     user_id INT NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 15b. COMMUNITY_LIKES
+CREATE TABLE community_likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_post_user (post_id, user_id),
     FOREIGN KEY (post_id) REFERENCES community_posts(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

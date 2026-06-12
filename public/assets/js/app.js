@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function toggleFaq(el) {
   var answer = el.nextElementSibling;
   var toggle = el.querySelector('.faq-toggle');
+  el.classList.toggle('is-open');
   if (answer && answer.classList.contains('faq-answer')) answer.classList.toggle('open');
   if (toggle) toggle.classList.toggle('open');
 }
