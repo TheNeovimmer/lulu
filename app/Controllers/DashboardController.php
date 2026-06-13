@@ -613,39 +613,78 @@ class DashboardController extends Controller {
         $userId = Session::get('user_id');
         $motherId = $this->getMotherId($userId);
 
+        $filter = Request::get('filter', 'all');
+
+        // All appointments past + future
         $appointments = $db->fetchAll(
-            "SELECT a.*, u.name as expert_name, u.specialty as expert_specialty 
-             FROM appointments a 
-             JOIN users u ON a.expert_id = u.id 
-             WHERE a.mother_id = ? AND a.appointment_date >= CURRENT_DATE()
+            "SELECT a.*, u.name as expert_name, u.specialty as expert_specialty
+             FROM appointments a
+             JOIN users u ON a.expert_id = u.id
+             WHERE a.mother_id = ?
              ORDER BY a.appointment_date ASC",
             [$motherId]
         );
 
         $baby = $db->fetch("SELECT * FROM babies WHERE mother_id = ?", [$motherId]);
         $vaccinations = [];
+        $milestones = [];
+        $memories = [];
+        $baby_birth = null;
+
         if ($baby) {
             $vaccinations = $db->fetchAll(
-                "SELECT * FROM vaccinations WHERE baby_id = ? AND status = 'pending' ORDER BY due_date ASC",
+                "SELECT * FROM vaccinations WHERE baby_id = ? ORDER BY due_date ASC",
                 [$baby['id']]
             );
+
+            $dbMilestones = $db->fetchAll(
+                "SELECT * FROM baby_milestones WHERE baby_id = ? AND achieved_date IS NOT NULL ORDER BY achieved_date ASC",
+                [$baby['id']]
+            );
+            $milestoneLabels = [
+                'first_smile' => 'Premier sourire',
+                'first_word' => 'Premier mot',
+                'first_step' => 'Premier pas',
+                'first_bath' => 'Premier bain',
+                'first_solid' => 'Première diversification',
+                'first_tooth' => 'Première dent',
+                'crawling' => 'Quatre pattes',
+                'sitting' => 'Assis seul',
+                'standing' => 'Debout seul',
+                'walking' => 'Marche seul',
+            ];
+            foreach ($dbMilestones as $bm) {
+                $milestones[] = [
+                    'title' => $milestoneLabels[$bm['milestone_key']] ?? $bm['milestone_key'],
+                    'date' => $bm['achieved_date'],
+                    'type' => 'milestone',
+                ];
+            }
+
+            $memories = $db->fetchAll(
+                "SELECT * FROM baby_memories WHERE baby_id = ? ORDER BY event_date ASC",
+                [$baby['id']]
+            );
+
+            if ($baby['date_of_birth']) {
+                $baby_birth = $baby['date_of_birth'];
+            }
         }
 
         $pregnancy = $db->fetch("SELECT * FROM pregnancies WHERE mother_id = ? AND status = 'active'", [$motherId]);
-        $milestones = [];
-        if ($pregnancy) {
+        $pregMilestones = [];
+        if ($pregnancy && $pregnancy['due_date']) {
             $dueDate = new \DateTime($pregnancy['due_date']);
-            // Add key ultrasound milestones
-            $milestones = [
+            $pregMilestones = [
                 ['title' => 'Échographie de datation (1er trimestre)', 'date' => (clone $dueDate)->modify('-196 days')->format('Y-m-d')],
                 ['title' => 'Échographie morphologique (2e trimestre)', 'date' => (clone $dueDate)->modify('-126 days')->format('Y-m-d')],
                 ['title' => 'Dépistage du diabète gestationnel', 'date' => (clone $dueDate)->modify('-98 days')->format('Y-m-d')],
                 ['title' => 'Échographie de croissance (3e trimestre)', 'date' => (clone $dueDate)->modify('-56 days')->format('Y-m-d')],
-                ['title' => 'Consultation d\'anesthésie', 'date' => (clone $dueDate)->modify('-28 days')->format('Y-m-d')],
+                ['title' => "Consultation d'anesthésie", 'date' => (clone $dueDate)->modify('-28 days')->format('Y-m-d')],
                 ['title' => 'Date prévue d\'accouchement', 'date' => $pregnancy['due_date']],
             ];
         }
 
-        $this->render('dashboard/agenda', compact('appointments', 'vaccinations', 'milestones'));
+        $this->render('dashboard/agenda', compact('appointments', 'vaccinations', 'milestones', 'memories', 'pregMilestones', 'baby_birth', 'filter'));
     }
 }

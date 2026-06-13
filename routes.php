@@ -70,6 +70,7 @@ $router->post('expert/ressources/create', 'ExpertController@createResource');
 $router->get('expert/notifications', 'ExpertController@notifications');
 $router->post('expert/notifications/read-all', 'ExpertController@readAllNotifications');
 $router->post('expert/notifications/read/{id}', 'ExpertController@readNotification');
+$router->get('expert/agenda', 'ExpertController@agenda');
 
 // CTT dashboard
 $router->get('ctt/dashboard', 'CttController@index');

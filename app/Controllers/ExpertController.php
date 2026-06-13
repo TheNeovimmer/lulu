@@ -149,6 +149,22 @@ class ExpertController extends Controller {
         $this->render('expert/notifications', compact('notifications'));
     }
 
+    public function agenda() {
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+
+        $appointments = $db->fetchAll(
+            "SELECT a.*, u.name as mother_name
+             FROM appointments a
+             JOIN users u ON a.mother_id = u.id
+             WHERE a.expert_id = ?
+             ORDER BY a.appointment_date ASC",
+            [$userId]
+        );
+
+        $this->render('expert/agenda', compact('appointments'));
+    }
+
     public function parametres() {
         $this->render('expert/parametres');
     }

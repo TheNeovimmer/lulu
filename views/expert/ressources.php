@@ -64,7 +64,7 @@
                 <td><?= htmlspecialchars($r['category_name'] ?? '-') ?></td>
                 <td><?= date('d/m/Y', strtotime($r['created_at'])) ?></td>
                 <td class="actions-cell">
-                  <a href="<?= $r['file'] ? '/uploads/ressources/'.htmlspecialchars($r['file']) : htmlspecialchars($r['link']) ?>" class="btn-icon" target="_blank"><i class="bi bi-download"></i></a>
+                  <a href="<?= htmlspecialchars($r['file_url'] ?? '') ?>" class="btn-icon" target="_blank"><i class="bi bi-download"></i></a>
                 </td>
               </tr>
               <?php endforeach; ?>
