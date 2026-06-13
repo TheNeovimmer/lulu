@@ -38,8 +38,8 @@
         <tr>
           <td><?= htmlspecialchars($ressource['title']) ?></td>
           <td class="td-muted"><?= htmlspecialchars($ressource['category_name']) ?></td>
-          <td class="td-muted"><?= htmlspecialchars($ressource['expert_name']) ?></td>
-          <td class="td-muted"><?= htmlspecialchars($ressource['downloads_count']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($ressource['expert_name'] ?? '—') ?></td>
+          <td class="td-muted"><?= htmlspecialchars($ressource['downloads_count'] ?? 0) ?></td>
           <td class="actions-cell">
             <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteRessourceModal<?= $ressource['id'] ?>"><i class="bi bi-trash"></i></button>
           </td>

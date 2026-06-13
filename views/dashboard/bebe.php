@@ -37,7 +37,7 @@
       <div class="stat-card-dashboard">
         <div class="stat-card-icon"><i class="bi bi-speedometer2"></i></div>
         <div class="stat-card-info">
-          <span class="stat-card-number"><?= number_format($baby['weight'], 2) ?> kg</span>
+          <span class="stat-card-number"><?= number_format($baby['last_weight'] ?? 0, 2) ?> kg</span>
           <span class="stat-card-label">Poids actuel</span>
         </div>
       </div>
@@ -75,13 +75,13 @@
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="number" step="0.01" name="weight" class="form-control" id="floatingWeight" placeholder="Poids" value="<?= htmlspecialchars($baby['weight']) ?>">
+                <input type="number" step="0.01" name="weight" class="form-control" id="floatingWeight" placeholder="Poids" value="<?= htmlspecialchars($baby['last_weight'] ?? '') ?>">
                 <label for="floatingWeight">Poids (kg)</label>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-floating">
-                <input type="number" step="0.1" name="height" class="form-control" id="floatingHeight" placeholder="Taille" value="<?= htmlspecialchars($baby['height']) ?>">
+                <input type="number" step="0.1" name="height" class="form-control" id="floatingHeight" placeholder="Taille" value="<?= htmlspecialchars($baby['last_height'] ?? '') ?>">
                 <label for="floatingHeight">Taille (cm)</label>
               </div>
             </div>

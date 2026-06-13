@@ -87,8 +87,8 @@
           <?php foreach ($articles as $article): ?>
           <div class="d-flex align-items-start gap-3 mb-3 pb-3 border-bottom" style="border-color: var(--dborder-light) !important;">
             <div>
-              <a href="/blog/<?= htmlspecialchars($article['slug'] ?? $article['id']) ?>" class="text-decoration-none fw-semibold" style="color: var(--dtext-dark);"><?= htmlspecialchars($article['title']) ?></a>
-              <p style="color: var(--dtext-muted); font-size: 0.85rem; margin-bottom: 0;"><?= date('d/m/Y', strtotime($article['created_at'])) ?></p>
+              <a href="/blog/<?= htmlspecialchars($article['slug'] ?? $article['id']) ?>" class="text-decoration-none fw-semibold" style="color: var(--dtext-dark);"><?= htmlspecialchars($article['title'] ?? '') ?></a>
+              <p style="color: var(--dtext-muted); font-size: 0.85rem; margin-bottom: 0;"><?= date('d/m/Y', strtotime($article['created_at'] ?? 'now')) ?></p>
             </div>
           </div>
           <?php endforeach; ?>

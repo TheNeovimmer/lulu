@@ -1,151 +1,82 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\Database;
 use App\Core\Request;
 use App\Core\Session;
+use App\Core\Validator;
+use App\Services\CommunityService;
 
 class CommunityController extends Controller {
+    private CommunityService $communityService;
+
     public function __construct() {
         $this->layout = 'front';
+        $this->communityService = new CommunityService();
     }
 
     public function index() {
-        $db = Database::getInstance();
-        $page = max(1, (int)Request::get('page', 1));
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
-
-        $total = $db->fetch("SELECT COUNT(*) as count FROM community_posts WHERE status = 'published'")['count'];
-        $posts = $db->fetchAll(
-            "SELECT cp.*, u.name as author_name, u.avatar as author_avatar,
-                    (SELECT COUNT(*) FROM community_likes WHERE post_id = cp.id) as likes_count,
-                    (SELECT COUNT(*) FROM community_comments WHERE post_id = cp.id) as comments_count
-             FROM community_posts cp
-             LEFT JOIN users u ON cp.user_id = u.id
-             WHERE cp.status = 'published'
-             ORDER BY cp.created_at DESC
-             LIMIT ? OFFSET ?",
-            [$limit, $offset]
-        );
-
-        $totalPages = ceil($total / $limit);
-        $this->render('pages/communaute', compact('posts', 'page', 'totalPages', 'total'));
+        $posts = $this->communityService->getPublishedPosts();
+        $totalPages = 1;
+        $this->render('pages/communaute', compact('posts', 'totalPages'));
     }
 
     public function show($id) {
-        $db = Database::getInstance();
-        $post = $db->fetch(
-            "SELECT cp.*, u.name as author_name, u.avatar as author_avatar
-             FROM community_posts cp
-             LEFT JOIN users u ON cp.user_id = u.id
-             WHERE cp.id = ?",
-            [$id]
-        );
-        if (!$post) {
+        $result = $this->communityService->getPostWithDetails($id);
+        if (!$result) {
             $this->render('errors/404');
             return;
         }
-
-        $comments = $db->fetchAll(
-            "SELECT cc.*, u.name as user_name, u.avatar as user_avatar
-             FROM community_comments cc
-             LEFT JOIN users u ON cc.user_id = u.id
-             WHERE cc.post_id = ?
-             ORDER BY cc.created_at ASC",
-            [$id]
-        );
-
-        $likesCount = $db->fetch("SELECT COUNT(*) as count FROM community_likes WHERE post_id = ?", [$id])['count'];
-
-        $userLiked = false;
-        if (Session::has('user_id')) {
-            $like = $db->fetch("SELECT id FROM community_likes WHERE post_id = ? AND user_id = ?", [$id, Session::get('user_id')]);
-            $userLiked = (bool)$like;
-        }
-
-        $this->render('pages/sujet', compact('post', 'comments', 'likesCount', 'userLiked'));
+        $this->render('pages/sujet', $result);
     }
 
     public function store() {
-        if (!Session::has('user_id')) {
-            header('Location: /auth/login');
-            exit;
-        }
-
-        $title = trim(Request::post('title'));
-        $content = trim(Request::post('content'));
-
-        if (empty($title) || empty($content)) {
-            Session::setFlash('error', 'Le titre et le contenu sont requis.');
+        if (!Request::isPost()) { Request::back(); }
+        $validator = new Validator(Request::all());
+        $validator->required('title', 'Le titre')->required('content', 'Le contenu');
+        if (!$validator->passes()) {
+            Session::setFlash('error', $validator->firstError());
             Request::back();
         }
-
-        $db = Database::getInstance();
-        $db->insert(
-            "INSERT INTO community_posts (title, content, user_id, status, created_at) VALUES (?, ?, ?, 'published', NOW())",
-            [$title, $content, Session::get('user_id')]
+        $this->communityService->createPost(
+            Session::get('user_id'),
+            trim(Request::post('title')),
+            trim(Request::post('content'))
         );
-
-        Session::setFlash('success', 'Publication créée avec succès.');
+        Session::setFlash('success', 'Sujet créé avec succès.');
         Request::redirect('/communaute');
     }
 
     public function comment($id) {
-        if (!Session::has('user_id')) {
-            header('Location: /auth/login');
-            exit;
+        if (!Request::isPost()) { Request::back(); }
+        $validator = new Validator(Request::all());
+        $validator->required('content', 'Le commentaire');
+        if (!$validator->passes()) {
+            Session::setFlash('error', $validator->firstError());
+            Request::back();
         }
-
-        $db = Database::getInstance();
-        $db->insert(
-            "INSERT INTO community_comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())",
-            [$id, Session::get('user_id'), Request::post('content')]
-        );
-        Session::setFlash('success', 'Commentaire ajouté.');
-        Request::back();
+        $this->communityService->addComment($id, Session::get('user_id'), trim(Request::post('content')));
+        Request::redirect('/communaute/' . $id);
     }
 
     public function like($id) {
-        if (!Session::has('user_id')) {
-            header('Location: /auth/login');
-            exit;
-        }
-
-        $db = Database::getInstance();
-        $userId = Session::get('user_id');
-
-        $existing = $db->fetch("SELECT id FROM community_likes WHERE post_id = ? AND user_id = ?", [$id, $userId]);
-
-        if ($existing) {
-            $db->query("DELETE FROM community_likes WHERE id = ?", [$existing['id']]);
-            $liked = false;
-        } else {
-            $db->insert("INSERT INTO community_likes (post_id, user_id, created_at) VALUES (?, ?, NOW())", [$id, $userId]);
-            $liked = true;
-        }
-
-        $db->query("UPDATE community_posts SET likes_count = (SELECT COUNT(*) FROM community_likes WHERE post_id = ?) WHERE id = ?", [$id, $id]);
-        $count = $db->fetch("SELECT COUNT(*) as count FROM community_likes WHERE post_id = ?", [$id])['count'];
-
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+        if (!Request::isPost()) { Request::back(); }
+        $result = $this->communityService->toggleLike($id, Session::get('user_id'));
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
             header('Content-Type: application/json');
-            echo json_encode(['liked' => $liked, 'count' => $count]);
+            echo json_encode($result);
             exit;
         }
-
-        Request::back();
+        Request::redirect('/communaute/' . $id);
     }
 
     public function deleteComment($id) {
         if (!Request::isPost()) { Request::back(); }
-        $db = Database::getInstance();
-        $userId = Session::get('user_id');
-        $comment = $db->fetch("SELECT user_id, post_id FROM community_comments WHERE id = ?", [$id]);
-        if ($comment && $comment['user_id'] == $userId) {
-            $db->query("DELETE FROM community_comments WHERE id = ?", [$id]);
+        $postId = $this->communityService->deleteComment($id, Session::get('user_id'));
+        if ($postId) {
             Session::setFlash('success', 'Commentaire supprimé.');
+            Request::redirect('/communaute/' . $postId);
         }
-        Request::redirect('/communaute/' . $comment['post_id']);
+        Session::setFlash('error', 'Commentaire introuvable.');
+        Request::back();
     }
 }

@@ -26,14 +26,14 @@ class AdminTestimonialController {
         $db = Database::getInstance();
         $db->query("UPDATE testimonials SET status = 'approved' WHERE id = ?", [$id]);
         Session::setFlash('success', 'Témoignage approuvé.');
-        Request::back();
+        Request::redirect('/admin/testimonials');
     }
 
     public function reject($id) {
         $db = Database::getInstance();
         $db->query("UPDATE testimonials SET status = 'rejected' WHERE id = ?", [$id]);
         Session::setFlash('success', 'Témoignage rejeté.');
-        Request::back();
+        Request::redirect('/admin/testimonials');
     }
 
     public function destroy($id) {

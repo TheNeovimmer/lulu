@@ -40,8 +40,8 @@
         <h5 class="card-dashboard-title">FAQ existante</h5>
       </div>
       <div class="card-dashboard-body">
-        <?php if (!empty($faqs)): ?>
-          <?php foreach ($faqs as $category => $items): ?>
+        <?php if (!empty($grouped)): ?>
+          <?php foreach ($grouped as $category => $items): ?>
           <h6 class="fw-semibold mt-3 mb-2" style="color:var(--dprimary);"><?= htmlspecialchars(ucfirst($category)) ?></h6>
           <?php foreach ($items as $f): ?>
           <div class="bg-light p-3 rounded-3 mb-2" style="background: var(--dbg-body);">

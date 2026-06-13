@@ -3,73 +3,68 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Core\Session;
-use App\Core\View;
-use App\Repositories\UserRepository;
+use App\Core\Validator;
+use App\Services\AuthService;
 
-class AuthController {
-    private $userRepo;
-    public function __construct() { $this->userRepo = new UserRepository(); }
+class AuthController extends Controller {
+    private AuthService $authService;
+
+    public function __construct() {
+        $this->layout = 'front';
+        $this->authService = new AuthService();
+    }
 
     public function login() {
-        View::render('auth/login', ['title' => 'Connexion - LUMA'], 'front');
+        $this->render('auth/login');
     }
 
     public function authenticate() {
-        $email = Request::post('email');
-        $password = Request::post('password');
-        $user = $this->userRepo->findByEmail($email);
-
-        if (!$user || !password_verify($password, $user['password'])) {
-            Session::setFlash('error', 'Email ou mot de passe incorrect');
+        $validator = new Validator(Request::all());
+        $validator->required('email', 'Email')->required('password', 'Mot de passe');
+        if (!$validator->passes()) {
+            Session::setFlash('error', $validator->firstError());
             Request::back();
         }
 
-        if ($user['status'] !== 'active') {
-            Session::setFlash('error', 'Votre compte est suspendu. Contactez l\'administration.');
+        $result = $this->authService->authenticate(Request::post('email'), Request::post('password'));
+        if (!$result) {
+            Session::setFlash('error', 'Email ou mot de passe incorrect.');
+            Request::back();
+        }
+        if (is_string($result)) {
+            Session::setFlash('error', $result);
             Request::back();
         }
 
-        Session::set('user_id', $user['id']);
-        Session::set('user_name', $user['name']);
-        Session::set('user_email', $user['email']);
-        Session::set('user_role_slug', $user['role_slug']);
-        Session::set('user_role_name', $user['role_name']);
-        Session::set('user_avatar', $user['avatar']);
-
-        switch ($user['role_slug']) {
-            case 'admin': Request::redirect('/admin'); break;
-            case 'expert': Request::redirect('/expert/dashboard'); break;
-            case 'ctt': Request::redirect('/ctt/dashboard'); break;
-            default: Request::redirect('/dashboard');
-        }
+        $this->authService->login($result);
+        Session::setFlash('success', 'Bon retour parmi nous !');
+        Request::redirect($this->authService->getRedirectUrl(Session::get('user_role_slug')));
     }
 
     public function register() {
-        View::render('auth/register', ['title' => 'Inscription - LUMA'], 'front');
+        $this->render('auth/register');
     }
 
     public function store() {
-        $name = trim(Request::post('name'));
-        $email = trim(Request::post('email'));
-        $role = Request::post('role', 'maman');
-        $password = Request::post('password');
-        $confirm = Request::post('password_confirm');
-
-        $errors = [];
-        if (strlen($name) < 2) $errors[] = 'Nom trop court';
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email invalide';
-        if (!in_array($role, ['maman', 'expert'])) $errors[] = 'Rôle invalide';
-        if (strlen($password) < 6) $errors[] = 'Mot de passe trop court (6 caractères minimum)';
-        if ($password !== $confirm) $errors[] = 'Les mots de passe ne correspondent pas';
-        if ($this->userRepo->findByEmail($email)) $errors[] = 'Cet email est déjà utilisé';
-
-        if (!empty($errors)) {
-            Session::setFlash('errors', $errors);
+        $validator = new Validator(Request::all());
+        $validator->required('name', 'Le nom')->required('email', 'Email')->required('password', 'Mot de passe')
+            ->email('email')->minLength('password', 6)
+            ->matches('password', 'password_confirm', 'Mot de passe', 'Confirmation');
+        if (!$validator->passes()) {
+            Session::setFlash('error', $validator->firstError());
             Request::back();
         }
-
-        $this->userRepo->create(['name' => $name, 'email' => $email, 'password' => $password, 'role' => $role]);
-        Session::setFlash('success', 'Inscription réussie ! Connectez-vous.');
+        $userId = $this->authService->register(
+            trim(Request::post('name')),
+            trim(Request::post('email')),
+            Request::post('password'),
+            Request::post('phone') ?: ''
+        );
+        if (!$userId) {
+            Session::setFlash('error', 'Cet email est déjà utilisé.');
+            Request::back();
+        }
+        Session::setFlash('success', 'Compte créé avec succès. Connectez-vous !');
         Request::redirect('/auth/login');
     }
 

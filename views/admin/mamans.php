@@ -31,7 +31,7 @@
           <td><?= htmlspecialchars($maman['name']) ?></td>
           <td class="td-muted"><?= htmlspecialchars($maman['email']) ?></td>
           <td class="td-muted"><?= htmlspecialchars($maman['due_date']) ?></td>
-          <td><span class="badge-dashboard info"><?= htmlspecialchars($maman['weeks_gestation']) ?> sem.</span></td>
+          <td><span class="badge-dashboard info"><?= htmlspecialchars($maman['weeks_gestation'] ?? '—') ?> sem.</span></td>
           <td class="actions-cell">
             <a href="/admin/mamans/<?= $maman['id'] ?>" class="btn-icon"><i class="bi bi-eye"></i></a>
             <a href="/admin/users/edit/<?= $maman['id'] ?>" class="btn-icon"><i class="bi bi-pencil"></i></a>

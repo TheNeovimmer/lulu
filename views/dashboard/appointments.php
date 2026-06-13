@@ -78,7 +78,7 @@
             <?= \App\Core\Session::csrf_field() ?>
             <div class="modal-body">
               <div class="form-floating mb-3">
-                <select name="expert_id" class="form-select" id="floatingExpert" required>
+                <select name="expert_id" class="form-select" id="floatingExpert" required onchange="fetchSlots()">
                   <option value="">Choisir...</option>
                   <?php foreach ($experts as $e): ?>
                     <option value="<?= $e['id'] ?>"><?= htmlspecialchars($e['name']) ?> (<?= htmlspecialchars($e['specialty'] ?? 'Généraliste') ?>)</option>
@@ -87,8 +87,14 @@
                 <label for="floatingExpert">Choisir un spécialiste</label>
               </div>
               <div class="form-floating mb-3">
-                <input type="datetime-local" name="appointment_date" class="form-control" id="floatingApptDate" placeholder="Date et Heure" required>
-                <label for="floatingApptDate">Date et Heure</label>
+                <input type="date" name="appointment_date" class="form-control" id="floatingApptDate" onchange="fetchSlots()" required>
+                <label for="floatingApptDate">Date du rendez-vous</label>
+              </div>
+              <div class="form-floating mb-3">
+                <select name="appointment_time" class="form-select" id="floatingApptTime" required>
+                  <option value="">Sélectionnez d'abord un expert et une date</option>
+                </select>
+                <label for="floatingApptTime">Créneau horaire</label>
               </div>
               <div class="form-floating mb-3">
                 <select name="type" class="form-select" id="floatingType">
@@ -101,6 +107,7 @@
                 <textarea name="notes" class="form-control" id="floatingApptNotes" placeholder="Notes" rows="3" style="min-height: 100px;"></textarea>
                 <label for="floatingApptNotes">Notes / Symptômes / Motifs</label>
               </div>
+              <div id="slotLoading" class="text-center text-muted small d-none"><div class="spinner-border spinner-border-sm me-1"></div>Chargement des créneaux...</div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn-dashboard btn-dashboard-outline" data-bs-dismiss="modal">Annuler</button>
@@ -112,3 +119,39 @@
     </div>
   </div>
 </div>
+
+<script>
+function fetchSlots() {
+  const expertId = document.getElementById('floatingExpert').value;
+  const date = document.getElementById('floatingApptDate').value;
+  const timeSelect = document.getElementById('floatingApptTime');
+  const loading = document.getElementById('slotLoading');
+
+  timeSelect.innerHTML = '<option value="">Sélectionnez un créneau</option>';
+
+  if (!expertId || !date) return;
+
+  loading.classList.remove('d-none');
+
+  fetch('/api/expert/' + expertId + '/slots?date=' + encodeURIComponent(date))
+    .then(r => r.json())
+    .then(slots => {
+      loading.classList.add('d-none');
+      if (slots.length === 0) {
+        timeSelect.innerHTML = '<option value="">Aucun créneau disponible</option>';
+        return;
+      }
+      timeSelect.innerHTML = '<option value="">Choisir un créneau...</option>';
+      slots.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        timeSelect.appendChild(opt);
+      });
+    })
+    .catch(() => {
+      loading.classList.add('d-none');
+      timeSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+    });
+}
+</script>

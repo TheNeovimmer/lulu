@@ -93,6 +93,13 @@ $router->post('expert/notifications/read-all', 'ExpertController@readAllNotifica
 $router->post('expert/notifications/read/{id}', 'ExpertController@readNotification');
 $router->get('expert/agenda', 'ExpertController@agenda');
 $router->post('expert/appointments/update/{id}', 'ExpertController@updateAppointment');
+$router->get('expert/disponibilites', 'ExpertController@availability');
+$router->post('expert/disponibilites', 'ExpertController@saveAvailability');
+$router->post('expert/disponibilites/unavailable', 'ExpertController@addUnavailableDate');
+$router->post('expert/disponibilites/unavailable/remove/{date}', 'ExpertController@removeUnavailableDate');
+
+// API endpoint for available slots (used in booking modal)
+$router->get('api/expert/{id}/slots', 'ExpertController@availableSlots');
 
 // CTT dashboard
 $router->get('ctt/dashboard', 'CttController@index');

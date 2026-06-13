@@ -5,78 +5,45 @@ use App\Core\View;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\Database;
+use App\Services\TicketService;
+use App\Repositories\TicketRepository;
 
 class AdminTicketController {
+    private TicketService $ticketService;
+    private TicketRepository $ticketRepo;
+
     public function __construct() {
         if (Session::get('user_role_slug') !== 'admin') {
             header('Location: /');
             exit;
         }
+        $this->ticketService = new TicketService();
+        $this->ticketRepo = new TicketRepository();
     }
 
     public function index() {
-        $db = Database::getInstance();
         $status = Request::get('status', '');
-
-        $where = '';
-        $params = [];
-        if ($status) {
-            $where = "WHERE t.status = ?";
-            $params[] = $status;
-        }
-
-        $tickets = $db->fetchAll(
-            "SELECT t.*, u.name as user_name, e.name as expert_name
-             FROM tickets t
-             LEFT JOIN users u ON t.user_id = u.id
-             LEFT JOIN users e ON t.assigned_to = e.id
-             $where
-             ORDER BY t.created_at DESC",
-            $params
-        );
+        $where = $status ? 't.status = ?' : '';
+        $params = $status ? [$status] : [];
+        $tickets = $this->ticketRepo->allWithDetails($where, $params);
         View::render('admin/tickets', compact('tickets', 'status'), 'admin');
     }
 
     public function show($id) {
-        $db = Database::getInstance();
-        $ticket = $db->fetch(
-            "SELECT t.*, u.name as user_name, u.email as user_email, e.name as expert_name
-             FROM tickets t
-             LEFT JOIN users u ON t.user_id = u.id
-             LEFT JOIN users e ON t.assigned_to = e.id
-             WHERE t.id = ?",
-            [$id]
-        );
+        $ticket = $this->ticketRepo->findWithMessages($id);
         if (!$ticket) { Request::redirect('/admin/tickets'); }
-        $messages = $db->fetchAll(
-            "SELECT tm.*, u.name as user_name FROM ticket_messages tm LEFT JOIN users u ON tm.user_id = u.id WHERE tm.ticket_id = ? ORDER BY tm.created_at ASC",
-            [$id]
-        );
+        $messages = $this->ticketRepo->findMessages($id);
         View::render('admin/ticket-show', compact('ticket', 'messages'), 'admin');
     }
 
     public function assign($id) {
-        $db = Database::getInstance();
-        $expertId = Request::post('expert_id');
-        $db->query("UPDATE tickets SET assigned_to = ?, status = 'in_progress' WHERE id = ?", [$expertId, $id]);
-        $db->insert(
-            "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Ticket assigné', 'Un ticket vous a été assigné par l\\'administrateur.', '/tickets/{$id}')",
-            [$expertId]
-        );
+        $this->ticketService->assign($id, Request::post('expert_id'));
         Session::setFlash('success', 'Ticket assigné.');
         Request::redirect('/admin/tickets');
     }
 
     public function close($id) {
-        $db = Database::getInstance();
-        $db->query("UPDATE tickets SET status = 'closed' WHERE id = ?", [$id]);
-        $ticket = $db->fetch("SELECT user_id FROM tickets WHERE id = ?", [$id]);
-        if ($ticket) {
-            $db->insert(
-                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Ticket fermé', 'Votre ticket de support a été fermé.', '/dashboard/tickets')",
-                [$ticket['user_id']]
-            );
-        }
+        $this->ticketService->close($id);
         Session::setFlash('success', 'Ticket fermé.');
         Request::redirect('/admin/tickets');
     }
@@ -89,18 +56,9 @@ class AdminTicketController {
     }
 
     public function reply($id) {
-        $db = Database::getInstance();
         $message = Request::post('message');
-        $userId = Session::get('user_id');
         if ($message) {
-            $db->query("INSERT INTO ticket_messages (ticket_id, user_id, message, created_at) VALUES (?, ?, ?, NOW())", [$id, $userId, $message]);
-            $ticket = $db->fetch("SELECT user_id FROM tickets WHERE id = ?", [$id]);
-            if ($ticket && $ticket['user_id'] != $userId) {
-                $db->insert(
-                    "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Réponse à votre ticket', 'L\\'administrateur a répondu à votre ticket.', '/dashboard/tickets')",
-                    [$ticket['user_id']]
-                );
-            }
+            $this->ticketService->reply($id, Session::get('user_id'), $message);
         }
         Session::setFlash('success', 'Réponse envoyée.');
         Request::redirect('/admin/tickets/' . $id);

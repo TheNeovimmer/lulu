@@ -1,56 +1,59 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\View;
-use App\Core\Database;
 use App\Core\Request;
 use App\Core\Session;
 use App\Repositories\ArticleRepository;
+use App\Repositories\CategoryRepository;
+use App\Repositories\CommentRepository;
 
-class ArticleController {
-    private $articleRepo;
-    public function __construct() { $this->articleRepo = new ArticleRepository(); }
+class ArticleController extends Controller {
+    private ArticleRepository $articleRepo;
+    private CategoryRepository $categoryRepo;
+    private CommentRepository $commentRepo;
+
+    public function __construct() {
+        $this->layout = 'front';
+        $this->articleRepo = new ArticleRepository();
+        $this->categoryRepo = new CategoryRepository();
+        $this->commentRepo = new CommentRepository();
+    }
 
     public function index() {
         $page = max(1, (int)($_GET['page'] ?? 1));
-        $category = $_GET['category'] ?? null;
-        $limit = 9;
-        $offset = ($page - 1) * $limit;
-        $articles = $this->articleRepo->findAllPublished($limit, $offset, $category);
-        $total = $this->articleRepo->countPublished($category);
-
-        $db = Database::getInstance();
-        $categories = $db->fetchAll("SELECT * FROM categories ORDER BY name");
-
-        View::render('pages/blog', compact('articles', 'categories', 'category', 'page', 'total', 'limit'), 'front');
+        $category = (int)($_GET['category'] ?? 0);
+        $categories = $this->categoryRepo->findAllOrdered();
+        $result = $this->articleRepo->findPublished(9, $category ?: null, $page);
+        $articles = $result['items'];
+        $total = $result['total'];
+        $limit = $result['limit'];
+        $this->render('pages/blog', compact('articles', 'categories', 'category', 'total', 'limit', 'page'));
     }
 
     public function show($slug) {
         $article = $this->articleRepo->findBySlug($slug);
-        if (!$article) { View::render('errors/404', [], 'front'); return; }
-
-        $db = Database::getInstance();
-        $db->query("UPDATE articles SET views_count = views_count + 1 WHERE id = ?", [$article['id']]);
-        $comments = $db->fetchAll(
-            "SELECT c.*, u.name as user_name FROM comments c LEFT JOIN users u ON c.user_id = u.id WHERE c.article_id = ? AND c.status = 'approved' ORDER BY c.created_at DESC",
-            [$article['id']]
-        );
-        $popular = $db->fetchAll("SELECT id, title, slug, created_at FROM articles WHERE status='published' AND id != ? ORDER BY created_at DESC LIMIT 4", [$article['id']]);
-
-        View::render('pages/blog-single', compact('article', 'comments', 'popular'), 'front');
+        if (!$article) {
+            $this->render('errors/404');
+            return;
+        }
+        $this->articleRepo->incrementViews($article['id']);
+        $comments = $this->commentRepo->findByArticle($article['id']);
+        $popular = $this->articleRepo->getPopular(5);
+        $this->render('pages/blog-single', compact('article', 'comments', 'popular'));
     }
 
     public function comment($slug) {
-        if (!Session::has('user_id')) { Request::redirect('/auth/login'); return; }
+        if (!Request::isPost()) { Request::back(); }
         $article = $this->articleRepo->findBySlug($slug);
         if (!$article) { Request::back(); }
-
-        $db = Database::getInstance();
-        $db->insert(
-            "INSERT INTO comments (article_id, user_id, content, status) VALUES (?, ?, ?, 'pending')",
-            [$article['id'], Session::get('user_id'), Request::post('content')]
-        );
-        Session::setFlash('success', 'Votre commentaire a été soumis et sera visible après modération.');
-        Request::back();
+        $this->commentRepo->create([
+            'article_id' => $article['id'],
+            'user_id' => Session::get('user_id'),
+            'content' => trim(Request::post('content')),
+            'status' => 'pending',
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+        Session::setFlash('success', 'Commentaire soumis pour modération.');
+        Request::redirect('/blog/' . $slug);
     }
 }

@@ -1,68 +1,90 @@
 <?php
 namespace App\Repositories;
 
-use App\Core\Database;
+class UserRepository extends BaseRepository {
+    protected string $table = 'users';
 
-class UserRepository {
-    private $db;
-    public function __construct() { $this->db = Database::getInstance(); }
-
-    public function findByEmail($email) {
-        return $this->db->fetch("SELECT u.*, r.slug as role_slug, r.name as role_name FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.email = ?", [$email]);
+    public function findByEmail(string $email): ?array {
+        return $this->rawOne("SELECT * FROM users WHERE email = ?", [$email]);
     }
 
-    public function findById($id) {
-        return $this->db->fetch("SELECT u.*, r.slug as role_slug, r.name as role_name FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = ?", [$id]);
-    }
-
-    public function create($data) {
-        $roleId = $this->db->fetch("SELECT id FROM roles WHERE slug = ?", [$data['role'] ?? 'maman'])['id'];
-        return $this->db->insert(
-            "INSERT INTO users (role_id, name, email, password, phone) VALUES (?, ?, ?, ?, ?)",
-            [$roleId, $data['name'], $data['email'], password_hash($data['password'], PASSWORD_BCRYPT), $data['phone'] ?? null]
+    public function findByRole(string $roleSlug, string $status = 'active'): array {
+        return $this->raw(
+            "SELECT u.*, r.name as role_name
+             FROM users u
+             JOIN roles r ON u.role_id = r.id
+             WHERE r.slug = ? AND u.status = ?
+             ORDER BY u.name ASC",
+            [$roleSlug, $status]
         );
     }
 
-    public function updateAvatar($id, $avatar) {
-        $this->db->query("UPDATE users SET avatar = ? WHERE id = ?", [$avatar, $id]);
+    public function findByRoleId(int $roleId, string $status = 'active'): array {
+        return $this->findAll(['role_id' => $roleId, 'status' => $status], 'name ASC');
     }
 
-    public function updateProfile($id, $data) {
-        $this->db->query("UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?", [$data['name'], $data['email'], $data['phone'] ?? null, $id]);
+    public function getWithRole(int $id): ?array {
+        return $this->rawOne(
+            "SELECT u.*, r.name as role_name, r.slug as role_slug
+             FROM users u
+             JOIN roles r ON u.role_id = r.id
+             WHERE u.id = ?", [$id]
+        );
     }
 
-    public function updatePassword($id, $password) {
-        $this->db->query("UPDATE users SET password = ? WHERE id = ?", [password_hash($password, PASSWORD_BCRYPT), $id]);
+    public function allWithRoles(array $criteria = []): array {
+        $sql = "SELECT u.*, r.name as role_name, r.slug as role_slug FROM users u LEFT JOIN roles r ON u.role_id = r.id";
+        $params = [];
+        if (!empty($criteria)) {
+            $wheres = [];
+            foreach ($criteria as $key => $value) {
+                if (str_contains($key, '.')) {
+                    $wheres[] = "{$key} = ?";
+                } else {
+                    $wheres[] = "u.{$key} = ?";
+                }
+                $params[] = $value;
+            }
+            $sql .= " WHERE " . implode(' AND ', $wheres);
+        }
+        $sql .= " ORDER BY u.created_at DESC";
+        return $this->raw($sql, $params);
     }
 
-    public function findAll() {
-        return $this->db->fetchAll("SELECT u.*, r.name as role_name, r.slug as role_slug FROM users u LEFT JOIN roles r ON u.role_id = r.id ORDER BY u.created_at DESC");
+    public function getMotherId(int $userId): int {
+        $mother = $this->rawOne("SELECT id FROM mothers WHERE user_id = ?", [$userId]);
+        if ($mother) {
+            return $mother['id'];
+        }
+        return $this->db->insert("INSERT INTO mothers (user_id) VALUES (?)", [$userId]);
     }
 
-    public function findAllByRole($roleSlug) {
-        return $this->db->fetchAll("SELECT u.*, r.name as role_name FROM users u JOIN roles r ON u.role_id = r.id WHERE r.slug = ? ORDER BY u.created_at DESC", [$roleSlug]);
+    public function updatePassword(int $userId, string $newPassword): void {
+        $this->update($userId, ['password' => password_hash($newPassword, PASSWORD_BCRYPT)]);
     }
 
-    public function toggleRole($id) {
-        $user = $this->findById($id);
-        $newRoleSlug = $user['role_slug'] === 'admin' ? 'maman' : 'admin';
-        $newRoleId = $this->db->fetch("SELECT id FROM roles WHERE slug = ?", [$newRoleSlug])['id'];
-        $this->db->query("UPDATE users SET role_id = ? WHERE id = ?", [$newRoleId, $id]);
+    public function verifyPassword(int $userId, string $password): bool {
+        $user = $this->findById($userId);
+        return $user && password_verify($password, $user['password']);
     }
 
-    public function updateStatus($id, $status) {
-        $this->db->query("UPDATE users SET status = ? WHERE id = ?", [$status, $id]);
+    public function getRoleSlug(int $userId): ?string {
+        $result = $this->rawOne(
+            "SELECT r.slug FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = ?",
+            [$userId]
+        );
+        return $result['slug'] ?? null;
     }
 
-    public function delete($id) {
-        $this->db->query("DELETE FROM users WHERE id = ?", [$id]);
+    public function findByMotherId(int $motherId): ?array {
+        return $this->rawOne(
+            "SELECT u.* FROM users u JOIN mothers m ON u.id = m.user_id WHERE m.id = ?",
+            [$motherId]
+        );
     }
 
-    public function count() {
-        return $this->db->fetch("SELECT COUNT(*) as count FROM users")['count'];
-    }
-
-    public function countByRole($roleSlug) {
-        return $this->db->fetch("SELECT COUNT(*) as count FROM users u JOIN roles r ON u.role_id = r.id WHERE r.slug = ?", [$roleSlug])['count'];
+    public function getRoleIdBySlug(string $slug): ?int {
+        $result = $this->rawOne("SELECT id FROM roles WHERE slug = ?", [$slug]);
+        return $result['id'] ?? null;
     }
 }

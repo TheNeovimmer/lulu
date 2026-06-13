@@ -7,28 +7,6 @@
       </div>
     </div>
 
-    <?php
-    $upcoming = [];
-    $past = [];
-    $today = new \DateTime('today');
-    foreach ($appointments as $a) {
-        $evt = [
-            'id' => $a['id'],
-            'title' => 'Consultation avec ' . ($a['mother_name'] ?? 'Maman'),
-            'date' => date('Y-m-d', strtotime($a['appointment_date'])),
-            'time' => date('H:i', strtotime($a['appointment_date'])),
-            'status' => $a['status'],
-            'type' => $a['type'],
-            'notes' => $a['notes'] ?? '',
-        ];
-        if (new \DateTime($evt['date']) < $today) {
-            $past[] = $evt;
-        } else {
-            $upcoming[] = $evt;
-        }
-    }
-    ?>
-
     <div class="card-dashboard mb-4">
       <div class="card-dashboard-header">
         <h5 class="card-dashboard-title">À venir</h5>

@@ -5,124 +5,86 @@ use App\Core\View;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\Database;
+use App\Repositories\ArticleRepository;
+use App\Repositories\CategoryRepository;
 
 class AdminArticleController {
+    private ArticleRepository $articleRepo;
+    private CategoryRepository $categoryRepo;
+
     public function __construct() {
         if (Session::get('user_role_slug') !== 'admin') {
             header('Location: /');
             exit;
         }
+        $this->articleRepo = new ArticleRepository();
+        $this->categoryRepo = new CategoryRepository();
     }
 
     public function index() {
-        $db = Database::getInstance();
-        $search = Request::get('search', '');
-        $page = max(1, (int) Request::get('page', 1));
-        $limit = 20;
-        $offset = ($page - 1) * $limit;
-
-        $where = '';
-        $params = [];
-        if ($search) {
-            $where = "WHERE a.title LIKE ?";
-            $params[] = "%$search%";
-        }
-
-        $articles = $db->fetchAll(
-            "SELECT a.*, c.name as category_name, u.name as author_name FROM articles a LEFT JOIN categories c ON a.category_id = c.id LEFT JOIN users u ON a.user_id = u.id $where ORDER BY a.created_at DESC LIMIT $limit OFFSET $offset",
-            $params
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = 20;
+        $offset = ($page - 1) * $perPage;
+        $articles = $this->articleRepo->raw(
+            "SELECT a.*, u.name as author_name, c.name as category_name
+             FROM articles a
+             LEFT JOIN users u ON a.user_id = u.id
+             LEFT JOIN categories c ON a.category_id = c.id
+             ORDER BY a.created_at DESC
+             LIMIT ? OFFSET ?",
+            [$perPage, $offset]
         );
-        $total = $db->fetch(
-            "SELECT COUNT(*) as count FROM articles a $where",
-            $params
-        )['count'];
-
-        $pagination = [
-            'current' => $page,
-            'pages' => max(1, ceil($total / $limit)),
-        ];
-
-        View::render('admin/articles', compact('articles', 'page', 'total', 'limit', 'search', 'pagination'), 'admin');
+        $total = $this->articleRepo->rawOne(
+            "SELECT COUNT(*) as count FROM articles"
+        )['count'] ?? 0;
+        $totalPages = max(1, (int)ceil($total / $perPage));
+        $pagination = ['current' => $page, 'pages' => $totalPages, 'total' => $total];
+        View::render('admin/articles', compact('articles', 'pagination'), 'admin');
     }
 
     public function create() {
-        $db = Database::getInstance();
-        $categories = $db->fetchAll("SELECT * FROM categories ORDER BY name");
+        $categories = $this->categoryRepo->findAllOrdered();
         View::render('admin/article-form', compact('categories'), 'admin');
     }
 
     public function store() {
         $db = Database::getInstance();
-        $title = Request::post('title');
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
-        $image = null;
-
-        if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $filename = uniqid() . '.' . $ext;
-            move_uploaded_file($_FILES['image']['tmp_name'], __DIR__ . '/../../public/assets/uploads/' . $filename);
-            $image = '/assets/uploads/' . $filename;
-        }
-
-        $db->insert(
-            "INSERT INTO articles (category_id, user_id, title, slug, content, image, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
+        $db->query(
+            "INSERT INTO articles (title, slug, content, excerpt, category_id, user_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
             [
+                Request::post('title'),
+                $this->articleRepo->generateSlug(Request::post('title')),
+                Request::post('content'),
+                Request::post('excerpt') ?: null,
                 Request::post('category_id'),
                 Session::get('user_id'),
-                $title,
-                $slug,
-                Request::post('content'),
-                $image,
                 Request::post('status', 'draft'),
             ]
         );
-
-        Session::setFlash('success', 'Article créé avec succès.');
+        Session::setFlash('success', 'Article créé.');
         Request::redirect('/admin/articles');
     }
 
     public function edit($id) {
-        $db = Database::getInstance();
-        $article = $db->fetch("SELECT * FROM articles WHERE id = ?", [$id]);
-        $categories = $db->fetchAll("SELECT * FROM categories ORDER BY name");
+        $article = $this->articleRepo->findById($id);
+        if (!$article) { Request::redirect('/admin/articles'); }
+        $categories = $this->categoryRepo->findAllOrdered();
         View::render('admin/article-form', compact('article', 'categories'), 'admin');
     }
 
     public function update($id) {
         $db = Database::getInstance();
-        $title = Request::post('title');
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
-
-        $existing = $db->fetch("SELECT image FROM articles WHERE id = ?", [$id]);
-        $image = $existing['image'];
-
-        if (!empty($_FILES['image']['name']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $filename = uniqid() . '.' . $ext;
-            move_uploaded_file($_FILES['image']['tmp_name'], __DIR__ . '/../../public/assets/uploads/' . $filename);
-            $image = '/assets/uploads/' . $filename;
-        }
-
+        $slug = $this->articleRepo->generateSlug(Request::post('title'), $id);
         $db->query(
-            "UPDATE articles SET category_id=?, title=?, slug=?, content=?, image=?, status=? WHERE id=?",
-            [
-                Request::post('category_id'),
-                $title,
-                $slug,
-                Request::post('content'),
-                $image,
-                Request::post('status', 'draft'),
-                $id,
-            ]
+            "UPDATE articles SET title = ?, slug = ?, content = ?, excerpt = ?, category_id = ?, status = ? WHERE id = ?",
+            [Request::post('title'), $slug, Request::post('content'), Request::post('excerpt') ?: null, Request::post('category_id'), Request::post('status', 'draft'), $id]
         );
-
         Session::setFlash('success', 'Article mis à jour.');
         Request::redirect('/admin/articles');
     }
 
     public function destroy($id) {
-        $db = Database::getInstance();
-        $db->query("DELETE FROM articles WHERE id = ?", [$id]);
+        $this->articleRepo->delete($id);
         Session::setFlash('success', 'Article supprimé.');
         Request::redirect('/admin/articles');
     }

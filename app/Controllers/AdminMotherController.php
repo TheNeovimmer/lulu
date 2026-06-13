@@ -5,48 +5,35 @@ use App\Core\View;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\Database;
+use App\Repositories\MotherRepository;
 
 class AdminMotherController {
+    private MotherRepository $motherRepo;
+
     public function __construct() {
         if (Session::get('user_role_slug') !== 'admin') {
             header('Location: /');
             exit;
         }
+        $this->motherRepo = new MotherRepository();
     }
 
     public function index() {
-        $db = Database::getInstance();
-        $mamans = $db->fetchAll(
-            "SELECT u.*, p.due_date, p.week as weeks_gestation, p.created_at as pregnancy_since
-                         FROM users u
-                         LEFT JOIN mothers m ON u.id = m.user_id
-                         LEFT JOIN pregnancies p ON m.id = p.mother_id
-                         JOIN roles r ON u.role_id = r.id
-                         WHERE r.slug = 'maman'
-                         ORDER BY u.created_at DESC",
-        );
+        $mamans = $this->motherRepo->allWithPregnancies();
         View::render('admin/mamans', compact('mamans'), 'admin');
     }
 
     public function show($id) {
-        $db = Database::getInstance();
-        $mother = $db->fetch(
-            "SELECT u.*, m.id as mother_id, m.date_of_birth, m.city
-             FROM users u
-             LEFT JOIN mothers m ON u.id = m.user_id
-             WHERE u.id = ?",
-            [$id]
-        );
+        $mother = $this->motherRepo->findWithDetails($id);
         if (!$mother) {
             Session::setFlash('error', 'Maman introuvable.');
             Request::redirect('/admin/mamans');
         }
-        $pregnancy = $db->fetch("SELECT * FROM pregnancies WHERE mother_id = ?", [$mother['mother_id']]);
-        $baby = $db->fetch("SELECT * FROM babies WHERE mother_id = ?", [$mother['mother_id']]);
-        $babies = $baby ? [$baby] : [];
+        $pregnancy = $this->motherRepo->rawOne("SELECT * FROM pregnancies WHERE mother_id = ?", [$mother['mother_id']]);
+        $babies = $this->motherRepo->raw("SELECT * FROM babies WHERE mother_id = ?", [$mother['mother_id']]);
         foreach ($babies as &$b) {
-            $b['vaccinations'] = $db->fetchAll("SELECT * FROM vaccinations WHERE baby_id = ? ORDER BY due_date ASC", [$b['id']]);
-            $b['growth_records'] = $db->fetchAll("SELECT * FROM growth_records WHERE baby_id = ? ORDER BY record_date ASC", [$b['id']]);
+            $b['vaccinations'] = $this->motherRepo->raw("SELECT * FROM vaccinations WHERE baby_id = ? ORDER BY due_date ASC", [$b['id']]);
+            $b['growth_records'] = $this->motherRepo->raw("SELECT * FROM growth_records WHERE baby_id = ? ORDER BY record_date ASC", [$b['id']]);
         }
         View::render('admin/mother-show', compact('mother', 'pregnancy', 'babies'), 'admin');
     }

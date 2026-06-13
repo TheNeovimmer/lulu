@@ -44,42 +44,127 @@ luma/
 - Extension PDO MySQL
 - Extension GD (pour les avatars)
 
-## Installation
+## Installation sur Laragon (Windows)
 
-1. **Cloner le dépôt**
+### Étape 1 — Télécharger et installer Laragon
+
+1. Télécharger Laragon sur <https://laragon.org/download/>
+2. Lancer l'installateur et choisir un dossier d'installation (ex: `C:\laragon`)
+3. À la fin de l'installation, Laragon démarre automatiquement avec Apache et MySQL activés
+
+### Étape 2 — Vérifier que PHP et MySQL fonctionnent
+
+1. Ouvrir Laragon, cliquer sur **MySQL** → **my.ini** pour vérifier que MySQL est actif (bouton **Start All**)
+2. Cliquer sur **Menu** → **PHP** pour vérifier la version installée (8.3+ requis)
+3. Ouvrir un terminal Windows et taper :
    ```bash
-   git clone <url>
-   cd luma
+   php -v
+   ```
+   La version 8.3+ doit s'afficher. Si ce n'est pas le cas, aller dans **Menu > PHP > Version** pour en installer une compatible.
+
+### Étape 3 — Placer le projet dans le dossier web de Laragon
+
+1. Copier le dossier `luma` dans `C:\laragon\www\`
+   ```
+   C:\laragon\www\luma\
+   ```
+2. Dans Laragon, cliquer sur **Menu** → **www** pour ouvrir le dossier et vérifier que le projet y est
+
+### Étape 4 — Créer la base de données via phpMyAdmin
+
+1. Dans Laragon, cliquer sur **Database** → **phpMyAdmin** (ou ouvrir `http://localhost/phpmyadmin` dans le navigateur)
+2. Cliquer sur l'onglet **Nouvelle base de données** (ou **New** dans le menu de gauche)
+3. Nommer la base : `luma`
+4. Cliquer sur **Créer**
+5. La base de données est créée mais vide — on va la remplir à l'étape suivante
+
+### Étape 5 — Importer le schéma de la base de données
+
+**Via phpMyAdmin :**
+
+1. Sélectionner la base `luma` dans le menu de gauche
+2. Cliquer sur l'onglet **Importer**
+3. Cliquer **Choisir un fichier** et sélectionner `C:\laragon\www\luma\migrations\v2_create_tables.sql`
+4. Cliquer sur **Exécuter** en bas de page
+5. Vérifier qu'aucune erreur ne s'affiche
+
+**Ou via le terminal Laragon :**
+
+1. Cliquer sur **Menu** → **Terminal** dans Laragon
+2. Exécuter :
+   ```bash
+   mysql -u root luma < C:\laragon\www\luma\migrations\v2_create_tables.sql
    ```
 
-2. **Configurer l'environnement**
-   ```bash
-   cp env.example.php env.php
+### Étape 6 — Configurer l'environnement
+
+1. Ouvrir le fichier `C:\laragon\www\luma\env.example.php`
+2. Modifier les valeurs pour correspondre à Laragon :
+   ```php
+   <?php
+   define('DB_HOST', 'localhost');
+   define('DB_NAME', 'luma');
+   define('DB_USER', 'root');
+   define('DB_PASS', '');          // Laragon : pas de mot de passe par défaut
+   define('BASE_URL', 'http://localhost/luma/public');
    ```
-   Éditer `env.php` avec vos paramètres de base de données.
+3. Sauvegarder ce fichier sous le nom `env.php` dans le même dossier
 
-3. **Importer la base de données**
-   ```bash
-   mysql -u root -p nom_de_la_base < migrations/v2_create_tables.sql
-   ```
+### Étape 7 — Seeder la base de données
 
-4. **Seeder la base de données**
-   ```bash
-   php database/seeds/seed.php
-   ```
-
-5. **Configurer le serveur web**
-   - Document root : `/public/`
-   - Réécriture URL vers `index.php`
-
-### Avec DDEV
+Ouvrir le terminal Laragon (**Menu** → **Terminal**) et exécuter :
 
 ```bash
-ddev start
-ddev exec php database/seeds/seed.php
+cd C:\laragon\www\luma
+php database/seeds/seed.php
 ```
 
-## Comptes de test
+Vous devriez voir les messages de confirmation :
+```
+  users ✓
+  roles ✓
+  permissions ✓
+  categories ✓
+  articles ✓
+  resources ✓
+  ...
+```
+
+### Étape 8 — Configurer Apache (Virtual Host)
+
+**Option A — Via Laragon (recommandé) :**
+
+1. Dans Laragon, aller dans **Menu** → **Apache** → **vhosts.conf**
+2. Ajouter :
+   ```apache
+   <VirtualHost *:80>
+       DocumentRoot "C:/laragon/www/luma/public"
+       ServerName luma.test
+       <Directory "C:/laragon/www/luma/public">
+           AllowOverride All
+           Require all granted
+       </Directory>
+   </VirtualHost>
+   ```
+3. Sauvegarder et redémarrer Apache (**Menu** → **Apache** → **Restart**)
+
+**Option B — Accès direct sans Virtual Host :**
+
+Laragon redirige automatiquement vers `http://localhost/luma/public` si le dossier contient un `public/`. Vérifier que le `.htaccess` dans `public/` est bien actif (il contient déjà les règles de réécriture).
+
+### Étape 9 — Accéder au site
+
+1. Ouvrir le navigateur et aller sur :
+   ```
+   http://localhost/luma/public
+   ```
+   Ou si vous avez configuré le Virtual Host :
+   ```
+   http://luma.test
+   ```
+2. La page d'accueil de LUMA s'affiche
+
+### Étape 10 — Connexion aux comptes de test
 
 | Rôle    | Email             | Mot de passe |
 |---------|-------------------|--------------|
@@ -87,6 +172,13 @@ ddev exec php database/seeds/seed.php
 | Maman   | maman@test.tn     | password     |
 | Expert  | expert@test.tn    | password     |
 | CTT     | ctt@luma.tn       | password     |
+
+## Installation avec DDEV (alternative)
+
+```bash
+ddev start
+ddev exec php database/seeds/seed.php
+```
 
 ## Fonctionnalités
 

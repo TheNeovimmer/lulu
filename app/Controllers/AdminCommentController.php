@@ -16,39 +16,28 @@ class AdminCommentController {
 
     public function index() {
         $db = Database::getInstance();
-        $status = Request::get('status', '');
-
-        $statusFilter = '';
-        $params = [];
-        if ($status) {
-            $statusFilter = "WHERE c.status = ?";
-            $params[] = $status;
-        }
-
         $comments = $db->fetchAll(
             "SELECT c.*, u.name as user_name, a.title as article_title
-                         FROM comments c
-                         LEFT JOIN users u ON c.user_id = u.id
-                         LEFT JOIN articles a ON c.article_id = a.id
-                         $statusFilter
-                         ORDER BY c.created_at DESC",
-            $params
+             FROM comments c
+             LEFT JOIN users u ON c.user_id = u.id
+             LEFT JOIN articles a ON c.article_id = a.id
+             ORDER BY c.created_at DESC"
         );
-        View::render('admin/comments', compact('comments', 'status'), 'admin');
+        View::render('admin/comments', compact('comments'), 'admin');
     }
 
     public function approve($id) {
         $db = Database::getInstance();
         $db->query("UPDATE comments SET status = 'approved' WHERE id = ?", [$id]);
         Session::setFlash('success', 'Commentaire approuvé.');
-        Request::back();
+        Request::redirect('/admin/comments');
     }
 
     public function reject($id) {
         $db = Database::getInstance();
         $db->query("UPDATE comments SET status = 'rejected' WHERE id = ?", [$id]);
         Session::setFlash('success', 'Commentaire rejeté.');
-        Request::back();
+        Request::redirect('/admin/comments');
     }
 
     public function destroy($id) {

@@ -1,52 +1,46 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\Database;
 use App\Core\Request;
 use App\Core\Session;
+use App\Core\Validator;
+use App\Repositories\NewsletterRepository;
 
 class NewsletterController {
+    private NewsletterRepository $newsletterRepo;
+
+    public function __construct() {
+        $this->newsletterRepo = new NewsletterRepository();
+    }
+
     public function subscribe() {
-        Session::validate_csrf();
-
+        $validator = new Validator(Request::all());
+        $validator->required('email', 'Email')->email('email');
+        if (!$validator->passes()) {
+            Session::setFlash('error', $validator->firstError());
+            Request::back();
+        }
         $email = trim(Request::post('email'));
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Session::setFlash('error', 'Veuillez fournir une adresse email valide.');
+        if ($this->newsletterRepo->findByEmail($email)) {
+            Session::setFlash('error', 'Cet email est déjà inscrit.');
             Request::back();
         }
-
-        $db = Database::getInstance();
-
-        $existing = $db->fetch("SELECT id FROM newsletters WHERE email = ?", [$email]);
-        if ($existing) {
-            Session::setFlash('info', 'Vous êtes déjà inscrit à notre newsletter.');
-            Request::back();
-        }
-
-        $db->insert(
-            "INSERT INTO newsletters (email, ip_address, is_active, created_at) VALUES (?, ?, 1, NOW())",
-            [$email, $_SERVER['REMOTE_ADDR'] ?? '']
-        );
-
-        Session::setFlash('success', 'Inscription à la newsletter réussie !');
+        $this->newsletterRepo->create([
+            'email' => $email,
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+        Session::setFlash('success', 'Inscription à la newsletter réussie.');
         Request::back();
     }
 
     public function unsubscribe() {
-        Session::validate_csrf();
-
         $email = trim(Request::post('email'));
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            Session::setFlash('error', 'Veuillez fournir une adresse email valide.');
-            Request::back();
+        $sub = $this->newsletterRepo->findByEmail($email);
+        if ($sub) {
+            $this->newsletterRepo->delete($sub['id']);
+            Session::setFlash('success', 'Désinscription réussie.');
         }
-
-        $db = Database::getInstance();
-        $db->query("UPDATE newsletters SET is_active = 0 WHERE email = ?", [$email]);
-
-        Session::setFlash('success', 'Désabonnement réussi.');
         Request::back();
     }
 }
