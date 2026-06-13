@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <?php if (empty($ressources)): ?>
+  <?php if (empty($resources)): ?>
   <div class="empty-state-dashboard">
     <i class="bi bi-file-earmark-pdf"></i>
     <h5>Aucune ressource</h5>
@@ -34,12 +34,12 @@
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($ressources as $ressource): ?>
+        <?php foreach ($resources as $ressource): ?>
         <tr>
           <td><?= htmlspecialchars($ressource['title']) ?></td>
           <td class="td-muted"><?= htmlspecialchars($ressource['category_name']) ?></td>
           <td class="td-muted"><?= htmlspecialchars($ressource['expert_name']) ?></td>
-          <td class="td-muted"><?= htmlspecialchars($ressource['downloads']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($ressource['downloads_count']) ?></td>
           <td class="actions-cell">
             <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteRessourceModal<?= $ressource['id'] ?>"><i class="bi bi-trash"></i></button>
           </td>
@@ -50,7 +50,7 @@
   </div>
   <?php endif; ?>
 
-  <?php foreach ($ressources as $ressource): ?>
+  <?php foreach ($resources as $ressource): ?>
   <div class="modal fade modal-dashboard" id="deleteRessourceModal<?= $ressource['id'] ?>" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -64,6 +64,7 @@
         <div class="modal-footer">
           <button type="button" class="btn-dashboard btn-dashboard-outline" data-bs-dismiss="modal">Annuler</button>
           <form action="/admin/ressources/delete/<?= $ressource['id'] ?>" method="post" class="inline-form">
+            <?= \App\Core\Session::csrf_field() ?>
             <button type="submit" class="btn-dashboard btn-dashboard-primary">Supprimer</button>
           </form>
         </div>

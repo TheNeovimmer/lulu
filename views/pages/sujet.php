@@ -51,7 +51,8 @@
   <?php if (\App\Core\Session::has('user_id')): ?>
   <div class="card-luma p-4" data-animate="fade-up">
     <h6 class="font-heading mb-3">Ajouter un commentaire</h6>
-    <form method="POST" action="/sujet/<?= $post['id'] ?>/comment">
+    <form method="POST" action="/communaute/<?= $post['id'] ?>/comment">
+      <?= \App\Core\Session::csrf_field() ?>
       <div class="mb-3">
         <textarea name="content" class="form-control form-control-luma" rows="3" placeholder="Votre message..." required></textarea>
       </div>
@@ -67,7 +68,7 @@
 
 <script>
 function toggleLike(postId) {
-  fetch('/sujet/' + postId + '/like', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+  fetch('/communaute/' + postId + '/like', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
     .then(r => r.json())
     .then(data => {
       const btn = event.target.closest('button');

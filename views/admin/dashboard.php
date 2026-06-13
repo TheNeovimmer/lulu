@@ -47,7 +47,7 @@
     <div class="card-dashboard">
       <div class="card-dashboard-header">
         <h5 class="card-dashboard-title">Derniers utilisateurs</h5>
-        <a href="/admin/users" class="btn-dashboard btn-dashboard-outline btn-dashboard-sm">Voir tout</a>
+        <a href="/admin/utilisateurs" class="btn-dashboard btn-dashboard-outline btn-dashboard-sm">Voir tout</a>
       </div>
       <div class="table-wrapper">
         <table class="table-dashboard">
@@ -93,7 +93,7 @@
           <i class="bi bi-envelope"></i>
           <span>Messages</span>
         </a>
-        <a href="/admin/users" class="quick-action-card">
+        <a href="/admin/utilisateurs" class="quick-action-card">
           <i class="bi bi-people"></i>
           <span>Utilisateurs</span>
         </a>

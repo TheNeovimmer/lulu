@@ -17,6 +17,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/dashboard/vaccination" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="row g-3">
             <div class="col-md-6">
               <div class="form-floating">

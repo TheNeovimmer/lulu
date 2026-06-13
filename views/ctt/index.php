@@ -8,21 +8,21 @@
     <div class="stat-card-dashboard">
       <div class="stat-card-icon"><i class="bi bi-ticket"></i></div>
       <div class="stat-card-info">
-        <span class="stat-card-number"><?= $stats['open_tickets'] ?? 0 ?></span>
+        <span class="stat-card-number"><?= $openTickets ?? 0 ?></span>
         <span class="stat-card-label">Tickets ouverts</span>
       </div>
     </div>
     <div class="stat-card-dashboard">
       <div class="stat-card-icon"><i class="bi bi-check-circle"></i></div>
       <div class="stat-card-info">
-        <span class="stat-card-number"><?= $stats['resolved_today'] ?? 0 ?></span>
+        <span class="stat-card-number"><?= $resolvedToday ?? 0 ?></span>
         <span class="stat-card-label">Résolus aujourd'hui</span>
       </div>
     </div>
     <div class="stat-card-dashboard">
       <div class="stat-card-icon"><i class="bi bi-question-circle"></i></div>
       <div class="stat-card-info">
-        <span class="stat-card-number"><?= $stats['faq_entries'] ?? 0 ?></span>
+        <span class="stat-card-number"><?= $faqCount ?? 0 ?></span>
         <span class="stat-card-label">Entrées FAQ</span>
       </div>
     </div>

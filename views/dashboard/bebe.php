@@ -49,6 +49,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/dashboard/bebe" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="row g-3">
             <div class="col-md-6">
               <div class="form-floating">
@@ -98,6 +99,7 @@
         <p style="color: var(--dtext-muted); font-size: 0.85rem; margin-bottom: 16px;">Cochez les étapes franchies par votre bébé pour suivre son éveil.</p>
         
         <form method="POST" action="/dashboard/bebe/milestones">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="row g-3">
             <?php
             $milestoneList = [
@@ -139,6 +141,7 @@
       <div class="card-dashboard-body">
         <div class="collapse mb-4" id="newMemoryForm">
           <form method="POST" action="/dashboard/bebe/memories" class="p-3 rounded-3 form-dashboard" style="background: var(--dprimary-subtle); border: 1px solid var(--dborder);">
+            <?= \App\Core\Session::csrf_field() ?>
             <div class="form-floating mb-3">
               <input type="text" name="title" class="form-control" id="floatingMemoryTitle" placeholder="Titre" required>
               <label for="floatingMemoryTitle">Titre de l'événement</label>
@@ -165,6 +168,7 @@
                   <p style="color: var(--dtext-muted); margin-bottom: 0; font-size: 0.875rem;"><?= nl2br(htmlspecialchars($m['content'])) ?></p>
                 </div>
                 <form method="POST" action="/dashboard/bebe/memories/delete/<?= $m['id'] ?>">
+                  <?= \App\Core\Session::csrf_field() ?>
                   <button type="submit" class="btn-icon danger" title="Supprimer" data-action="delete" data-url="/dashboard/bebe/memories/delete/<?= $m['id'] ?>" data-confirm="Supprimer ce souvenir ?"><i class="bi bi-trash"></i></button>
                 </form>
               </div>
@@ -186,6 +190,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/dashboard/bebe" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="row g-3">
             <div class="col-md-6">
               <div class="form-floating">

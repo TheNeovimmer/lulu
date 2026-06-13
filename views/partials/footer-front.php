@@ -61,9 +61,9 @@
       <div class="footer-bottom-inner">
         <span class="footer-copyright">&copy; <?= date('Y') ?> LUMA. Tous droits réservés.</span>
         <div class="footer-bottom-links">
-          <a href="/confidentialite" class="footer-bottom-link">Confidentialité</a>
-          <a href="/conditions" class="footer-bottom-link">Conditions</a>
-          <a href="/mentions-legales" class="footer-bottom-link">Mentions légales</a>
+          <a href="#" class="footer-bottom-link">Confidentialité</a>
+          <a href="#" class="footer-bottom-link">Conditions</a>
+          <a href="#" class="footer-bottom-link">Mentions légales</a>
         </div>
       </div>
     </div>

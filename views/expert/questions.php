@@ -8,7 +8,7 @@
             <h5 class="card-dashboard-title"><?= htmlspecialchars($q['title']) ?></h5>
             <p class="text-muted small mb-2">
               Par <?= htmlspecialchars($q['author_name']) ?> — <?= date('d/m/Y H:i', strtotime($q['created_at'])) ?>
-              <span class="ms-2 badge-dashboard info"><?= $q['reply_count'] ?> réponse(s)</span>
+              <span class="ms-2 badge-dashboard info">0 réponse(s)</span>
             </p>
             <p><?= nl2br(htmlspecialchars($q['content'])) ?></p>
           </div>
@@ -29,7 +29,8 @@
         </button>
 
         <div id="reply-form-<?= $q['id'] ?>" class="mt-3 d-none">
-          <form method="POST" action="/expert/questions/<?= $q['id'] ?>/answer" class="form-dashboard">
+          <form method="POST" action="/expert/questions/<?= $q['id'] ?>" class="form-dashboard">
+            <?= \App\Core\Session::csrf_field() ?>
             <div class="form-floating">
               <textarea name="content" class="form-control" rows="3" placeholder="Votre réponse..." required></textarea>
               <label>Votre réponse</label>

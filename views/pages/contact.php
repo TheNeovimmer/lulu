@@ -57,6 +57,7 @@
           <?php endif; ?>
 
           <form method="POST" action="/contact">
+            <?= \App\Core\Session::csrf_field() ?>
             <div class="row g-3">
               <div class="col-md-6">
                 <input type="text" name="name" class="form-control form-control-luma" placeholder="Nom" required>

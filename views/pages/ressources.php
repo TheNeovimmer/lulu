@@ -9,9 +9,9 @@
     <?php endforeach; ?>
   </div>
 
-  <?php if (!empty($ressources)): ?>
+  <?php if (!empty($resources)): ?>
   <div class="animate-stagger row g-4">
-    <?php foreach ($ressources as $r): ?>
+    <?php foreach ($resources as $r): ?>
     <div class="col-md-6 col-lg-4">
       <div class="card-luma p-4 h-100 d-flex flex-column">
         <div class="mb-2">
@@ -19,8 +19,8 @@
         </div>
         <h5 class="font-heading"><?= htmlspecialchars($r['title']) ?></h5>
         <p class="text-white-50 small flex-grow-1"><?= htmlspecialchars($r['description']) ?></p>
-        <a href="<?= $r['file'] ? '/uploads/ressources/'.htmlspecialchars($r['file']) : htmlspecialchars($r['link']) ?>" class="btn btn-luma btn-sm" target="_blank" <?= $r['file'] ? 'download' : '' ?>>
-          <i class="bi bi-download me-1"></i><?= $r['file'] ? 'Télécharger' : 'Voir la ressource' ?>
+        <a href="<?= $r['file_url'] ? htmlspecialchars($r['file_url']) : '#' ?>" class="btn btn-luma btn-sm" target="_blank" <?= strpos($r['file_url'] ?? '', '.pdf') !== false ? 'download' : '' ?>>
+          <i class="bi bi-download me-1"></i><?= $r['file_url'] ? 'Télécharger' : 'Voir la ressource' ?>
         </a>
       </div>
     </div>

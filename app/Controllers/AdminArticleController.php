@@ -29,7 +29,7 @@ class AdminArticleController {
         }
 
         $articles = $db->fetchAll(
-            "SELECT a.*, c.name as category_name FROM articles a LEFT JOIN categories c ON a.category_id = c.id $where ORDER BY a.created_at DESC LIMIT $limit OFFSET $offset",
+            "SELECT a.*, c.name as category_name, u.name as author_name FROM articles a LEFT JOIN categories c ON a.category_id = c.id LEFT JOIN users u ON a.user_id = u.id $where ORDER BY a.created_at DESC LIMIT $limit OFFSET $offset",
             $params
         );
         $total = $db->fetch(
@@ -37,7 +37,12 @@ class AdminArticleController {
             $params
         )['count'];
 
-        View::render('admin/articles', compact('articles', 'page', 'total', 'limit', 'search'), 'admin');
+        $pagination = [
+            'current' => $page,
+            'pages' => max(1, ceil($total / $limit)),
+        ];
+
+        View::render('admin/articles', compact('articles', 'page', 'total', 'limit', 'search', 'pagination'), 'admin');
     }
 
     public function create() {
@@ -60,11 +65,10 @@ class AdminArticleController {
         }
 
         $db->insert(
-            "INSERT INTO articles (category_id, user_id, expert_id, title, slug, content, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO articles (category_id, user_id, title, slug, content, image, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())",
             [
                 Request::post('category_id'),
                 Session::get('user_id'),
-                Request::post('expert_id') ?: null,
                 $title,
                 $slug,
                 Request::post('content'),
@@ -100,10 +104,9 @@ class AdminArticleController {
         }
 
         $db->query(
-            "UPDATE articles SET category_id=?, expert_id=?, title=?, slug=?, content=?, image=?, status=? WHERE id=?",
+            "UPDATE articles SET category_id=?, title=?, slug=?, content=?, image=?, status=? WHERE id=?",
             [
                 Request::post('category_id'),
-                Request::post('expert_id') ?: null,
                 $title,
                 $slug,
                 Request::post('content'),

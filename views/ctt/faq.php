@@ -6,6 +6,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/ctt/faq">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating">
             <select name="category" class="form-select" required>
               <option value="">Choisir...</option>
@@ -49,7 +50,8 @@
                 <p class="fw-semibold mb-1"><?= htmlspecialchars($f['question']) ?></p>
                 <p class="text-muted small mb-0"><?= htmlspecialchars($f['answer']) ?></p>
               </div>
-              <form method="POST" action="/ctt/faq/<?= $f['id'] ?>/delete" onsubmit="return confirm('Supprimer cette entrée ?')">
+              <form method="POST" action="/ctt/faq/delete/<?= $f['id'] ?>" onsubmit="return confirm('Supprimer cette entrée ?')">
+                <?= \App\Core\Session::csrf_field() ?>
                 <button class="btn-icon danger" title="Supprimer"><i class="bi bi-trash"></i></button>
               </form>
             </div>

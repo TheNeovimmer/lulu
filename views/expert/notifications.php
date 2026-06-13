@@ -5,6 +5,7 @@
       <?php if (!empty($notifications)): ?>
         <div class="page-actions-dashboard">
           <form method="POST" action="/expert/notifications/read-all">
+            <?= \App\Core\Session::csrf_field() ?>
             <button class="btn btn-dashboard btn-dashboard-outline btn-dashboard-sm"><i class="bi bi-check-all me-1"></i>Marquer tout comme lu</button>
           </form>
         </div>
@@ -24,6 +25,7 @@
         </div>
         <?php if (!$n['is_read']): ?>
         <form method="POST" action="/expert/notifications/read/<?= $n['id'] ?>">
+          <?= \App\Core\Session::csrf_field() ?>
           <button class="btn-icon" title="Marquer comme lu"><i class="bi bi-check"></i></button>
         </form>
         <?php endif; ?>

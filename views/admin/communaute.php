@@ -31,20 +31,18 @@
         <tr>
           <td><?= htmlspecialchars(mb_substr($post['content'], 0, 80)) ?><?= mb_strlen($post['content']) > 80 ? '...' : '' ?></td>
           <td class="td-muted"><?= htmlspecialchars($post['author_name']) ?></td>
-          <td class="td-muted"><?= htmlspecialchars($post['comments_count']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($post['comments_count'] ?? 0) ?></td>
           <td class="td-muted"><?= htmlspecialchars($post['created_at']) ?></td>
           <td>
-            <?php if ($post['visible']): ?>
+            <?php if ($post['status'] === 'published'): ?>
             <span class="badge-dashboard success">Visible</span>
             <?php else: ?>
             <span class="badge-dashboard">Masqué</span>
             <?php endif; ?>
           </td>
           <td class="actions-cell">
-            <?php if ($post['visible']): ?>
+            <?php if ($post['status'] === 'published'): ?>
             <a href="/admin/communaute/hide/<?= $post['id'] ?>" class="btn-icon warning"><i class="bi bi-eye-slash"></i></a>
-            <?php else: ?>
-            <a href="/admin/communaute/show/<?= $post['id'] ?>" class="btn-icon success"><i class="bi bi-eye"></i></a>
             <?php endif; ?>
             <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deletePostModal<?= $post['id'] ?>"><i class="bi bi-trash"></i></button>
           </td>
@@ -69,6 +67,7 @@
         <div class="modal-footer">
           <button type="button" class="btn-dashboard btn-dashboard-outline" data-bs-dismiss="modal">Annuler</button>
           <form action="/admin/communaute/delete/<?= $post['id'] ?>" method="post" class="inline-form">
+            <?= \App\Core\Session::csrf_field() ?>
             <button type="submit" class="btn-dashboard btn-dashboard-primary">Supprimer</button>
           </form>
         </div>

@@ -16,12 +16,33 @@
   <?php endif; ?>
 
   <div class="row-dashboard">
+    <?php if (isset($category)): ?>
+    <div class="card-dashboard">
+      <div class="card-dashboard-header">
+        <h5 class="card-dashboard-title">Modifier la catégorie</h5>
+      </div>
+      <div class="card-dashboard-body">
+        <form action="/admin/categories/edit/<?= $category['id'] ?>" method="post" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
+          <div class="form-floating">
+            <input type="text" name="name" class="form-control" id="editCatName" value="<?= htmlspecialchars($category['name']) ?>" required>
+            <label for="editCatName">Nom</label>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-dashboard btn-dashboard-primary">Enregistrer</button>
+            <a href="/admin/categories" class="btn-dashboard btn-dashboard-outline">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <?php endif; ?>
     <div class="card-dashboard">
       <div class="card-dashboard-header">
         <h5 class="card-dashboard-title">Ajouter une catégorie</h5>
       </div>
       <div class="card-dashboard-body">
         <form action="/admin/categories/create" method="post" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating">
             <input type="text" name="name" class="form-control" id="catName" required>
             <label for="catName">Nom</label>
@@ -47,6 +68,7 @@
             <tr>
               <td><?= htmlspecialchars($cat['name']) ?></td>
               <td class="actions-cell">
+                <a href="/admin/categories/edit/<?= $cat['id'] ?>" class="btn-icon"><i class="bi bi-pencil"></i></a>
                 <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?= $cat['id'] ?>"><i class="bi bi-trash"></i></button>
               </td>
             </tr>
@@ -71,6 +93,7 @@
         <div class="modal-footer">
           <button type="button" class="btn-dashboard btn-dashboard-outline" data-bs-dismiss="modal">Annuler</button>
           <form action="/admin/categories/delete/<?= $cat['id'] ?>" method="post" class="inline-form">
+            <?= \App\Core\Session::csrf_field() ?>
             <button type="submit" class="btn-dashboard btn-dashboard-primary">Supprimer</button>
           </form>
         </div>

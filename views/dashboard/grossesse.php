@@ -111,6 +111,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/dashboard/grossesse" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating mb-3">
             <input type="date" name="due_date" class="form-control" id="floatingDueDate" placeholder="Date prévue" value="<?= htmlspecialchars($pregnancy['due_date']) ?>" required>
             <label for="floatingDueDate">Date prévue d'accouchement</label>
@@ -130,6 +131,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/dashboard/grossesse" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating mb-3">
             <input type="date" name="due_date" class="form-control" id="floatingDueDateInit" placeholder="Date prévue" required>
             <label for="floatingDueDateInit">Date prévue d'accouchement</label>

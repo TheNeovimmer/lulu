@@ -72,9 +72,10 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" style="color: var(--dprimary);">Prendre rendez-vous</h5>
-            <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#bookModal"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <form method="POST" action="/dashboard/rendez-vous/book">
+            <?= \App\Core\Session::csrf_field() ?>
             <div class="modal-body">
               <div class="form-floating mb-3">
                 <select name="expert_id" class="form-select" id="floatingExpert" required>

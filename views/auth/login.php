@@ -13,6 +13,7 @@
         <?php endif; ?>
 
         <form method="POST" action="/auth/login">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="mb-3">
             <input type="email" name="email" class="form-control form-control-luma" placeholder="Votre email" required>
           </div>

@@ -2,10 +2,10 @@
   <div class="col-12">
     <ul class="nav nav-pills mb-4 gap-2" role="tablist">
       <li class="nav-item"><a class="filter-pill active" href="?status=all">Tous</a></li>
-      <li class="nav-item"><a class="filter-pill" href="?status=ouvert">Ouverts</a></li>
-      <li class="nav-item"><a class="filter-pill" href="?status=en_cours">En cours</a></li>
-      <li class="nav-item"><a class="filter-pill" href="?status=résolu">Résolus</a></li>
-      <li class="nav-item"><a class="filter-pill" href="?status=fermé">Fermés</a></li>
+      <li class="nav-item"><a class="filter-pill" href="?status=open">Ouverts</a></li>
+      <li class="nav-item"><a class="filter-pill" href="?status=in_progress">En cours</a></li>
+      <li class="nav-item"><a class="filter-pill" href="?status=closed">Résolus</a></li>
+      <li class="nav-item"><a class="filter-pill" href="?status=closed">Fermés</a></li>
     </ul>
 
     <div class="card-dashboard">
@@ -37,7 +37,7 @@
                   <?php endif; ?>
                 </td>
                 <td>
-                  <?php $statusClasses = ['ouvert' => 'success', 'en_cours' => 'warning', 'résolu' => 'info', 'fermé' => 'danger']; ?>
+                  <?php $statusClasses = ['open' => 'success', 'in_progress' => 'warning', 'closed' => 'info']; ?>
                   <span class="badge-dashboard <?= $statusClasses[$t['status']] ?? 'info' ?>"><?= ucfirst($t['status']) ?></span>
                 </td>
                 <td><?= htmlspecialchars($t['assigned_name'] ?? '-') ?></td>
@@ -48,10 +48,11 @@
                       <li>
                         <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#assignModal<?= $t['id'] ?>"><i class="bi bi-person me-2"></i>Assigner</button>
                       </li>
-                      <?php $nextStatuses = ['ouvert' => 'en_cours', 'en_cours' => 'résolu', 'résolu' => 'fermé']; ?>
+                      <?php $nextStatuses = ['open' => 'in_progress', 'in_progress' => 'closed', 'closed' => 'closed']; ?>
                       <?php if (isset($nextStatuses[$t['status']])): ?>
                       <li>
-                        <form method="POST" action="/ctt/tickets/<?= $t['id'] ?>/status" class="d-inline">
+                        <form method="POST" action="/ctt/tickets/update/<?= $t['id'] ?>" class="d-inline">
+                          <?= \App\Core\Session::csrf_field() ?>
                           <input type="hidden" name="status" value="<?= $nextStatuses[$t['status']] ?>">
                           <button type="submit" class="dropdown-item"><i class="bi bi-arrow-right me-2"></i>Passer en « <?= ucfirst($nextStatuses[$t['status']]) ?> »</button>
                         </form>
@@ -69,7 +70,8 @@
               <div class="modal fade modal-dashboard" id="assignModal<?= $t['id'] ?>" tabindex="-1">
                 <div class="modal-dialog">
                   <div class="modal-content">
-                    <form method="POST" action="/ctt/tickets/<?= $t['id'] ?>/assign">
+                    <form method="POST" action="/ctt/tickets/assign/<?= $t['id'] ?>">
+                      <?= \App\Core\Session::csrf_field() ?>
                       <div class="modal-header">
                         <h5 class="modal-title">Assigner ticket #<?= $t['id'] ?></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -113,7 +115,8 @@
                       <?php endif; ?>
                     </div>
                     <div class="modal-footer">
-                      <form method="POST" action="/ctt/tickets/<?= $t['id'] ?>/respond" class="w-100 form-dashboard">
+                      <form method="POST" action="/ctt/tickets/respond/<?= $t['id'] ?>" class="w-100 form-dashboard">
+                        <?= \App\Core\Session::csrf_field() ?>
                         <div class="form-floating">
                           <textarea name="message" class="form-control" rows="2" placeholder="Réponse..." required></textarea>
                           <label>Réponse</label>

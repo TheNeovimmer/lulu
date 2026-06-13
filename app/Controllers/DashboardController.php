@@ -100,6 +100,12 @@ class DashboardController extends Controller {
                 [$fullName, $email, $phone, $userId]
             );
 
+            $avatar = \App\Helpers\Avatar::upload($_FILES['avatar'] ?? []);
+            if ($avatar) {
+                $db->query("UPDATE users SET avatar = ? WHERE id = ?", [$avatar, $userId]);
+                Session::set('user_avatar', '/uploads/avatars/' . $avatar);
+            }
+
             $db->query(
                 "UPDATE mothers SET date_of_birth = ? WHERE id = ?",
                 [$dob, $motherId]

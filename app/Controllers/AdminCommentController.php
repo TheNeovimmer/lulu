@@ -50,4 +50,11 @@ class AdminCommentController {
         Session::setFlash('success', 'Commentaire rejeté.');
         Request::back();
     }
+
+    public function destroy($id) {
+        $db = Database::getInstance();
+        $db->query("DELETE FROM comments WHERE id = ?", [$id]);
+        Session::setFlash('success', 'Commentaire supprimé.');
+        Request::redirect('/admin/comments');
+    }
 }

@@ -18,7 +18,8 @@ class AdminCommunityController {
         $db = Database::getInstance();
         $posts = $db->fetchAll(
             "SELECT p.*, u.name as author_name,
-                                (SELECT COUNT(*) FROM community_likes WHERE post_id = p.id) as reaction_count
+                                (SELECT COUNT(*) FROM community_likes WHERE post_id = p.id) as reaction_count,
+                                (SELECT COUNT(*) FROM community_comments WHERE post_id = p.id) as comments_count
                          FROM community_posts p
                          LEFT JOIN users u ON p.user_id = u.id
                          ORDER BY FIELD(p.status, 'reported', 'published', 'hidden'), p.created_at DESC"

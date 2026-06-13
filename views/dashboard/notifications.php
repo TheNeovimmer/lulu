@@ -4,6 +4,7 @@
       <h1 class="page-title-dashboard"><i class="bi bi-bell me-2"></i>Notifications</h1>
       <?php if (!empty($notifications)): ?>
         <form method="POST" action="/dashboard/notifications/read-all">
+          <?= \App\Core\Session::csrf_field() ?>
           <button class="btn-dashboard btn-dashboard-outline btn-dashboard-sm"><i class="bi bi-check-all me-1"></i>Marquer tout comme lu</button>
         </form>
       <?php endif; ?>
@@ -22,6 +23,7 @@
         </div>
         <?php if (!$n['is_read']): ?>
         <form method="POST" action="/dashboard/notifications/read/<?= $n['id'] ?>">
+          <?= \App\Core\Session::csrf_field() ?>
           <button class="btn-icon" title="Marquer comme lu" data-action="mark-read" data-url="/dashboard/notifications/read/<?= $n['id'] ?>"><i class="bi bi-check"></i></button>
         </form>
         <?php endif; ?>

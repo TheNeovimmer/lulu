@@ -87,7 +87,7 @@
           <?php foreach ($articles as $article): ?>
           <div class="d-flex align-items-start gap-3 mb-3 pb-3 border-bottom" style="border-color: var(--dborder-light) !important;">
             <div>
-              <a href="/blog/<?= $article['id'] ?>" class="text-decoration-none fw-semibold" style="color: var(--dtext-dark);"><?= htmlspecialchars($article['title']) ?></a>
+              <a href="/blog/<?= htmlspecialchars($article['slug'] ?? $article['id']) ?>" class="text-decoration-none fw-semibold" style="color: var(--dtext-dark);"><?= htmlspecialchars($article['title']) ?></a>
               <p style="color: var(--dtext-muted); font-size: 0.85rem; margin-bottom: 0;"><?= date('d/m/Y', strtotime($article['created_at'])) ?></p>
             </div>
           </div>
@@ -122,8 +122,8 @@
         <h5 class="card-dashboard-title"><i class="bi bi-bell me-2"></i>Notifications</h5>
       </div>
       <div class="card-dashboard-body">
-        <?php if (isset($notification_count) && $notification_count > 0): ?>
-          <span class="stat-card-number" style="color: var(--dprimary);"><?= $notification_count ?> non lues</span>
+        <?php if (isset($notifCount) && $notifCount > 0): ?>
+          <span class="stat-card-number" style="color: var(--dprimary);"><?= $notifCount ?> non lues</span>
           <a href="/dashboard/notifications" class="btn-dashboard btn-dashboard-outline btn-dashboard-sm w-100 mt-2">Voir toutes</a>
         <?php else: ?>
           <div class="empty-state-dashboard">

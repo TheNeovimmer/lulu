@@ -10,12 +10,10 @@
       </div>
       <div class="card-dashboard-body">
         <div class="text-center mb-4">
-          <?php if (!empty($expert['avatar'])): ?>
-            <img src="/uploads/avatars/<?= htmlspecialchars($expert['avatar']) ?>" alt="Avatar" class="rounded-circle" width="120" height="120" style="object-fit:cover; border: 2px solid var(--dborder);">
+          <?php if (!empty($user['avatar'])): ?>
+            <img src="/uploads/avatars/<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar" class="rounded-circle" width="120" height="120" style="object-fit:cover; border: 3px solid var(--dprimary-subtle);">
           <?php else: ?>
-            <div class="rounded-circle d-inline-flex align-items-center justify-content-center" style="width:120px;height:120px;background:var(--dprimary-subtle);">
-              <i class="bi bi-person" style="color:var(--dprimary); font-size:2.5rem;"></i>
-            </div>
+            <img src="/assets/images/default-avatar.svg" alt="Avatar" class="rounded-circle" width="120" height="120" style="object-fit:cover; border: 3px solid var(--dprimary-subtle);">
           <?php endif; ?>
           <div class="mt-2">
             <label class="btn btn-dashboard btn-dashboard-outline btn-dashboard-sm">
@@ -24,15 +22,26 @@
           </div>
         </div>
 
-        <div class="form-floating">
-          <textarea name="bio" class="form-control" rows="4" placeholder="Biographie"><?= htmlspecialchars($expert['bio'] ?? '') ?></textarea>
+        <div class="form-floating mb-3">
+          <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($user['name'] ?? '') ?>" required>
+          <label>Nom complet</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" name="specialty" class="form-control" value="<?= htmlspecialchars($user['specialty'] ?? '') ?>">
+          <label>Spécialité</label>
+        </div>
+        <div class="form-floating mb-3">
+          <textarea name="bio" class="form-control" rows="4" placeholder="Biographie"><?= htmlspecialchars($user['bio'] ?? '') ?></textarea>
           <label>Biographie</label>
         </div>
-        <div class="form-floating">
-          <input type="text" name="expertise_areas" class="form-control" value="<?= htmlspecialchars($expert['expertise_areas'] ?? '') ?>" placeholder="Ex: Pédiatrie, Allaitement, Nutrition">
-          <label>Domaines d'expertise</label>
+        <div class="form-floating mb-3">
+          <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($user['phone'] ?? '') ?>">
+          <label>Téléphone</label>
         </div>
-        <div class="mb-3 small text-muted">Séparez les domaines par des virgules.</div>
+        <div class="form-floating mb-3">
+          <input type="text" name="address" class="form-control" value="<?= htmlspecialchars($user['address'] ?? '') ?>">
+          <label>Adresse</label>
+        </div>
         <button type="submit" class="btn btn-dashboard btn-dashboard-primary">Enregistrer</button>
       </div>
     </form>

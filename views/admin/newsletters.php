@@ -30,6 +30,7 @@
           <td class="td-muted"><?= htmlspecialchars($sub['created_at']) ?></td>
           <td class="actions-cell">
             <form action="/admin/newsletters/delete/<?= $sub['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
               <button type="submit" class="btn-icon danger" onclick="return confirm('Supprimer cet abonné ?')"><i class="bi bi-trash"></i></button>
             </form>
           </td>

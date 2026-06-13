@@ -30,9 +30,9 @@
       <?php endforeach; ?>
     </nav>
     <div class="sidebar-footer">
-      <hr>
-      <a href="/" class="nav-link"><i class="bi bi-arrow-left"></i><span>Voir le site</span></a>
-      <a href="/auth/logout" class="nav-link"><i class="bi bi-box-arrow-right"></i><span>Déconnexion</span></a>
+      <div class="sidebar-footer-label">Actions</div>
+      <a href="/" class="footer-link footer-link-site"><i class="bi bi-globe2"></i><span>Voir le site</span></a>
+      <a href="/auth/logout" class="footer-link footer-link-logout"><i class="bi bi-box-arrow-right"></i><span>Déconnexion</span></a>
     </div>
   </aside>
   <div class="sidebar-overlay" id="sidebarOverlay"></div>

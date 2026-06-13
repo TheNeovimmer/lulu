@@ -12,6 +12,7 @@
         <?php endif; ?>
 
         <form method="POST" action="/auth/register">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="mb-3">
             <input type="text" name="name" class="form-control form-control-luma" placeholder="Nom complet" required>
           </div>

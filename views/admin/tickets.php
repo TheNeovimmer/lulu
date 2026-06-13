@@ -53,15 +53,23 @@
           <td class="td-muted"><?= htmlspecialchars($ticket['assigned_to'] ?? '-') ?></td>
           <td class="td-muted"><?= htmlspecialchars($ticket['created_at']) ?></td>
           <td class="actions-cell">
-            <a href="/admin/tickets/view/<?= $ticket['id'] ?>" class="btn-icon"><i class="bi bi-eye"></i></a>
-            <div class="dropdown d-inline">
-              <button class="btn-icon" data-bs-toggle="dropdown"><i class="bi bi-shuffle"></i></button>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/admin/tickets/status/<?= $ticket['id'] ?>?status=open">Ouvert</a></li>
-                <li><a class="dropdown-item" href="/admin/tickets/status/<?= $ticket['id'] ?>?status=in_progress">En cours</a></li>
-                <li><a class="dropdown-item" href="/admin/tickets/status/<?= $ticket['id'] ?>?status=closed">Fermé</a></li>
-              </ul>
-            </div>
+            <a href="/admin/tickets/<?= $ticket['id'] ?>" class="btn-icon"><i class="bi bi-eye"></i></a>
+            <?php if ($ticket['status'] === 'open'): ?>
+            <form action="/admin/tickets/assign/<?= $ticket['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon"><i class="bi bi-person-check"></i></button>
+            </form>
+            <?php endif; ?>
+            <?php if ($ticket['status'] !== 'closed'): ?>
+            <form action="/admin/tickets/close/<?= $ticket['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon success"><i class="bi bi-check-circle"></i></button>
+            </form>
+            <?php endif; ?>
+            <form action="/admin/tickets/delete/<?= $ticket['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon danger" onclick="return confirm('Supprimer ce ticket ?')"><i class="bi bi-trash"></i></button>
+            </form>
           </td>
         </tr>
         <?php endforeach; ?>

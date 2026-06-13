@@ -81,8 +81,8 @@ class TicketController extends Controller {
         $priority = Request::post('priority', 'normal');
 
         $ticketId = $db->insert(
-            "INSERT INTO tickets (user_id, subject, status, priority, created_at) VALUES (?, ?, 'open', ?, NOW())",
-            [$userId, $subject, $priority]
+            "INSERT INTO tickets (user_id, subject, message, status, priority, created_at) VALUES (?, ?, ?, 'open', ?, NOW())",
+            [$userId, $subject, $message, $priority]
         );
         $db->insert(
             "INSERT INTO ticket_messages (ticket_id, user_id, message, created_at) VALUES (?, ?, ?, NOW())",

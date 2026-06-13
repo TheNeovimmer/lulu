@@ -30,7 +30,7 @@
         <?php foreach ($testimonials as $testimonial): ?>
         <tr>
           <td><?= htmlspecialchars(mb_substr($testimonial['content'], 0, 80)) ?><?= mb_strlen($testimonial['content']) > 80 ? '...' : '' ?></td>
-          <td class="td-muted"><?= htmlspecialchars($testimonial['author_name']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($testimonial['user_name']) ?></td>
           <td style="color: var(--dprimary);">
             <?php for ($i = 1; $i <= 5; $i++): ?>
             <span style="color: <?= $i <= $testimonial['rating'] ? 'var(--dprimary)' : 'var(--dborder)' ?>;">&#9733;</span>
@@ -48,11 +48,21 @@
           <td class="td-muted"><?= htmlspecialchars($testimonial['created_at']) ?></td>
           <td class="actions-cell">
             <?php if ($testimonial['status'] !== 'approved'): ?>
-            <a href="/admin/testimonials/approve/<?= $testimonial['id'] ?>" class="btn-icon success"><i class="bi bi-check-circle"></i></a>
+            <form action="/admin/testimonials/approve/<?= $testimonial['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon success"><i class="bi bi-check-circle"></i></button>
+            </form>
             <?php endif; ?>
             <?php if ($testimonial['status'] !== 'rejected'): ?>
-            <a href="/admin/testimonials/reject/<?= $testimonial['id'] ?>" class="btn-icon danger"><i class="bi bi-x-circle"></i></a>
+            <form action="/admin/testimonials/reject/<?= $testimonial['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon danger"><i class="bi bi-x-circle"></i></button>
+            </form>
             <?php endif; ?>
+            <form action="/admin/testimonials/delete/<?= $testimonial['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon danger" onclick="return confirm('Supprimer ce témoignage ?')"><i class="bi bi-trash"></i></button>
+            </form>
           </td>
         </tr>
         <?php endforeach; ?>

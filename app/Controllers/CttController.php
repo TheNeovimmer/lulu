@@ -18,11 +18,15 @@ class CttController extends Controller {
     public function index() {
         $db = Database::getInstance();
 
-        $openTickets = $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'open'")['count'];
-        $resolvedToday = $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'resolved' AND DATE(updated_at) = CURDATE()")['count'];
-        $faqCount = $db->fetch("SELECT COUNT(*) as count FROM faqs")['count'];
+        $stats = [
+            'open_tickets' => $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'open'")['count'],
+            'resolved_today' => $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'closed' AND DATE(updated_at) = CURDATE()")['count'],
+            'faq_entries' => $db->fetch("SELECT COUNT(*) as count FROM faqs")['count'],
+        ];
 
-        $this->render('ctt/index', compact('openTickets', 'resolvedToday', 'faqCount'));
+        $recent_tickets = $db->fetchAll("SELECT t.*, u.name as user_name FROM tickets t LEFT JOIN users u ON t.user_id = u.id ORDER BY t.created_at DESC LIMIT 5");
+
+        $this->render('ctt/index', compact('stats', 'recent_tickets'));
     }
 
     public function tickets() {
@@ -50,9 +54,9 @@ class CttController extends Controller {
 
         $tickets = $db->fetchAll($sql, $params);
 
-        $experts = $db->fetchAll("SELECT u.id, u.name FROM users u JOIN roles r ON u.role_id = r.id WHERE r.slug = 'expert' AND u.status = 'active' ORDER BY u.name");
+        $agents = $db->fetchAll("SELECT u.id, u.name FROM users u JOIN roles r ON u.role_id = r.id WHERE (r.slug = 'ctt' OR r.slug = 'expert') ORDER BY u.name");
 
-        $this->render('ctt/tickets', compact('tickets', 'experts', 'status', 'priority'));
+        $this->render('ctt/tickets', compact('tickets', 'agents', 'status', 'priority'));
     }
 
     public function updateTicket($id) {
@@ -76,7 +80,7 @@ class CttController extends Controller {
         $db = Database::getInstance();
         $expertId = Request::post('expert_id');
 
-        $db->query("UPDATE tickets SET assigned_to = ?, status = 'assigned', updated_at = NOW() WHERE id = ?", [$expertId, $id]);
+        $db->query("UPDATE tickets SET assigned_to = ?, status = 'in_progress', updated_at = NOW() WHERE id = ?", [$expertId, $id]);
         Session::setFlash('success', 'Ticket assigné à l\'expert.');
         Request::back();
     }
@@ -100,7 +104,7 @@ class CttController extends Controller {
         $displayOrder = (int)Request::post('display_order', 0);
 
         $db->insert(
-            "INSERT INTO faqs (question, answer, category, display_order, created_at) VALUES (?, ?, ?, ?, NOW())",
+            "INSERT INTO faqs (question, answer, category, display_order) VALUES (?, ?, ?, ?)",
             [$question, $answer, $category, $displayOrder]
         );
         Session::setFlash('success', 'FAQ ajoutée avec succès.');
@@ -115,7 +119,7 @@ class CttController extends Controller {
              FROM tickets t
              LEFT JOIN users u ON t.user_id = u.id
              LEFT JOIN users assignee ON t.assigned_to = assignee.id
-             WHERE t.status IN ('resolved', 'closed')
+             WHERE t.status = 'closed'
              ORDER BY t.updated_at DESC
              LIMIT 50"
         );
@@ -126,14 +130,47 @@ class CttController extends Controller {
         $db = Database::getInstance();
 
         $totalTickets = $db->fetch("SELECT COUNT(*) as count FROM tickets")['count'];
-        $openTickets = $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'open'")['count'];
-        $resolvedTickets = $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'resolved'")['count'];
+        $resolved = $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'closed'")['count'];
+        $agentsCount = $db->fetch("SELECT COUNT(DISTINCT u.id) as count FROM users u JOIN roles r ON u.role_id = r.id WHERE (r.slug = 'ctt' OR r.slug = 'expert')")['count'];
 
-        $monthlyStats = $db->fetchAll(
-            "SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count FROM tickets GROUP BY DATE_FORMAT(created_at, '%Y-%m') ORDER BY month DESC LIMIT 12"
-        );
+        $stats = [
+            'total_tickets' => $totalTickets,
+            'resolved' => $resolved,
+            'avg_response_time' => 'N/A',
+            'total_agents' => $agentsCount,
+        ];
 
-        $this->render('ctt/rapports', compact('totalTickets', 'openTickets', 'resolvedTickets', 'monthlyStats'));
+        $this->render('ctt/rapports', compact('stats'));
+    }
+
+    public function deleteFaq($id) {
+        $db = Database::getInstance();
+        $db->query("DELETE FROM faqs WHERE id = ?", [$id]);
+        Session::setFlash('success', 'FAQ supprimée.');
+        Request::back();
+    }
+
+    public function readAllNotifications() {
+        $db = Database::getInstance();
+        $db->query("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0", [Session::get('user_id')]);
+        Session::setFlash('success', 'Notifications marquées comme lues.');
+        Request::back();
+    }
+
+    public function readNotification($id) {
+        $db = Database::getInstance();
+        $db->query("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", [$id, Session::get('user_id')]);
+        Request::back();
+    }
+
+    public function respondTicket($id) {
+        $db = Database::getInstance();
+        $message = trim(Request::post('message'));
+        if ($message) {
+            $db->query("INSERT INTO ticket_messages (ticket_id, user_id, message, created_at) VALUES (?, ?, ?, NOW())", [$id, Session::get('user_id'), $message]);
+        }
+        Session::setFlash('success', 'Réponse envoyée.');
+        Request::back();
     }
 
     public function notifications() {

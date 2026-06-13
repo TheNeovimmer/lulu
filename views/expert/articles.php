@@ -5,7 +5,8 @@
         <h5 class="card-dashboard-title">Nouvel article</h5>
       </div>
       <div class="card-dashboard-body">
-        <form method="POST" action="/expert/articles">
+        <form method="POST" action="/expert/articles/create">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating">
             <input type="text" name="title" class="form-control" placeholder="Titre" required>
             <label>Titre</label>

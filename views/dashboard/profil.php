@@ -8,7 +8,22 @@
       <div class="alert alert-danger alert-dismissible fade show"><?= htmlspecialchars($flash) ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
 
-    <form method="POST" action="/dashboard/profil" class="card-dashboard form-dashboard">
+    <form method="POST" action="/dashboard/profil" enctype="multipart/form-data" class="card-dashboard form-dashboard">
+      <?= \App\Core\Session::csrf_field() ?>
+      <div class="text-center mb-4">
+        <?php $avatarUrl = $_SESSION['user_avatar'] ?? ($user['avatar'] ?? ''); ?>
+        <?php if ($avatarUrl): ?>
+          <img src="<?= htmlspecialchars($avatarUrl) ?>" alt="Avatar" class="rounded-circle" width="100" height="100" style="object-fit:cover; border: 3px solid var(--dprimary-subtle);">
+        <?php else: ?>
+          <img src="/assets/images/default-avatar.svg" alt="Avatar" class="rounded-circle" width="100" height="100" style="object-fit:cover; border: 3px solid var(--dprimary-subtle);">
+        <?php endif; ?>
+        <div class="mt-2">
+          <label class="btn btn-dashboard btn-dashboard-outline btn-dashboard-sm">
+            Changer la photo <input type="file" name="avatar" class="d-none" accept="image/*">
+          </label>
+        </div>
+      </div>
+
       <div class="form-floating mb-3">
         <input type="text" name="first_name" class="form-control" id="floatingFirstName" placeholder="Prénom" value="<?= htmlspecialchars($user['first_name'] ?? '') ?>" required>
         <label for="floatingFirstName">Prénom</label>

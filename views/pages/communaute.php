@@ -17,7 +17,7 @@
     <div class="card-luma p-4 mb-3" data-animate="fade-up">
       <div class="d-flex justify-content-between align-items-start">
         <div>
-          <a href="/sujet/<?= $p['id'] ?>" class="text-white text-decoration-none">
+          <a href="/communaute/<?= $p['id'] ?>" class="text-white text-decoration-none">
             <h5 class="font-heading"><?= htmlspecialchars($p['title']) ?></h5>
           </a>
           <p class="text-white-50 small mb-2">
@@ -61,6 +61,7 @@
   <div class="modal-dialog">
     <div class="modal-content bg-luma-glass">
       <form method="POST" action="/communaute">
+        <?= \App\Core\Session::csrf_field() ?>
         <div class="modal-header">
           <h5 class="modal-title">Nouveau sujet</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>

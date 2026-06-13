@@ -10,6 +10,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/dashboard/tickets" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating mb-3">
             <input type="text" name="subject" class="form-control" id="floatingSubject" placeholder="Sujet" required>
             <label for="floatingSubject">Sujet</label>
@@ -20,7 +21,7 @@
           </div>
           <div class="form-floating mb-3">
             <select name="priority" class="form-select" id="floatingPriority">
-              <option value="normal">Normal</option>
+              <option value="medium">Moyenne</option>
               <option value="urgent">Urgent</option>
             </select>
             <label for="floatingPriority">Priorité</label>
@@ -62,7 +63,7 @@
                   <?php endif; ?>
                 </td>
                 <td>
-                  <?php $statusClasses = ['ouvert' => 'success', 'en_cours' => 'warning', 'résolu' => 'info', 'fermé' => '']; ?>
+                  <?php $statusClasses = ['open' => 'success', 'in_progress' => 'warning', 'closed' => 'info']; ?>
                   <span class="badge-dashboard <?= $statusClasses[$t['status']] ?? '' ?>"><?= ucfirst($t['status']) ?></span>
                 </td>
                 <td>
@@ -81,7 +82,7 @@
                       <p style="color: var(--dtext-muted); font-size: 0.85rem;">
                         <?= date('d/m/Y H:i', strtotime($t['created_at'])) ?> —
                         Priorité: <span class="badge-dashboard <?= $t['priority'] === 'urgent' ? 'danger' : '' ?>"><?= $t['priority'] ?></span>
-                        Statut: <span class="badge-dashboard <?= $statusClasses[$t['status']] ?? '' ?>"><?= ucfirst($t['status']) ?></span>
+                        Statut: <span class="badge-dashboard <?= $statusClasses[$t['status']] ?? 'info' ?>"><?= ucfirst($t['status']) ?></span>
                       </p>
                       <hr style="border-color: var(--dborder-light); margin: 16px 0;">
                       <p><?= nl2br(htmlspecialchars($t['message'])) ?></p>

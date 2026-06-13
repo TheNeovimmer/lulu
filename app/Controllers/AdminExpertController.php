@@ -32,4 +32,11 @@ class AdminExpertController {
         Session::setFlash('success', 'Expert validé avec succès.');
         Request::redirect('/admin/experts');
     }
+
+    public function destroy($id) {
+        $db = Database::getInstance();
+        $db->query("DELETE FROM users WHERE id = ?", [$id]);
+        Session::setFlash('success', 'Expert supprimé.');
+        Request::redirect('/admin/experts');
+    }
 }

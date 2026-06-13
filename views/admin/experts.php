@@ -30,17 +30,20 @@
         <tr>
           <td><?= htmlspecialchars($expert['name']) ?></td>
           <td class="td-muted"><?= htmlspecialchars($expert['email']) ?></td>
-          <td class="td-muted"><?= htmlspecialchars($expert['expertise']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($expert['specialty']) ?></td>
           <td>
-            <?php if ($expert['validated']): ?>
+            <?php if ($expert['is_verified']): ?>
             <span class="badge-dashboard success">Validé</span>
             <?php else: ?>
             <span class="badge-dashboard warning">En attente</span>
             <?php endif; ?>
           </td>
           <td class="actions-cell">
-            <?php if (!$expert['validated']): ?>
-            <a href="/admin/experts/validate/<?= $expert['id'] ?>" class="btn-dashboard btn-dashboard-primary btn-dashboard-sm">Valider</a>
+            <?php if (!$expert['is_verified']): ?>
+            <form action="/admin/experts/validate/<?= $expert['id'] ?>" method="post" class="d-inline">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-dashboard btn-dashboard-primary btn-dashboard-sm">Valider</button>
+            </form>
             <?php endif; ?>
             <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteExpertModal<?= $expert['id'] ?>"><i class="bi bi-trash"></i></button>
           </td>
@@ -65,6 +68,7 @@
         <div class="modal-footer">
           <button type="button" class="btn-dashboard btn-dashboard-outline" data-bs-dismiss="modal">Annuler</button>
           <form action="/admin/experts/delete/<?= $expert['id'] ?>" method="post" class="inline-form">
+            <?= \App\Core\Session::csrf_field() ?>
             <button type="submit" class="btn-dashboard btn-dashboard-primary">Supprimer</button>
           </form>
         </div>

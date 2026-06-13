@@ -39,7 +39,7 @@
         <tr>
           <td><?= htmlspecialchars($article['title']) ?></td>
           <td class="td-muted"><?= htmlspecialchars($article['category_name']) ?></td>
-          <td class="td-muted"><?= htmlspecialchars($article['author_name']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($article['author_name'] ?? $article['user_name'] ?? '') ?></td>
           <td>
             <?php if ($article['status'] === 'published'): ?>
             <span class="badge-dashboard success">Publié</span>
@@ -51,6 +51,7 @@
           <td class="actions-cell">
             <a href="/admin/articles/edit/<?= $article['id'] ?>" class="btn-icon"><i class="bi bi-pencil"></i></a>
             <form action="/admin/articles/delete/<?= $article['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
               <button type="submit" class="btn-icon danger" onclick="return confirm('Supprimer cet article ?')"><i class="bi bi-trash"></i></button>
             </form>
           </td>

@@ -5,7 +5,8 @@
         <h5 class="card-dashboard-title">Nouvelle ressource</h5>
       </div>
       <div class="card-dashboard-body">
-        <form method="POST" action="/expert/ressources" enctype="multipart/form-data">
+        <form method="POST" action="/expert/ressources/create" enctype="multipart/form-data">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating">
             <input type="text" name="title" class="form-control" placeholder="Titre" required>
             <label>Titre</label>
@@ -17,9 +18,11 @@
           <div class="form-floating">
             <select name="category_id" class="form-select">
               <option value="">Choisir...</option>
-              <?php foreach ($categories as $cat): ?>
-                <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
-              <?php endforeach; ?>
+              <option value="1">Grossesse</option>
+              <option value="2">Accouchement</option>
+              <option value="3">Post-partum</option>
+              <option value="4">Allaitement</option>
+              <option value="5">Santé</option>
             </select>
             <label>Catégorie</label>
           </div>
@@ -43,7 +46,7 @@
         <h5 class="card-dashboard-title">Mes ressources</h5>
       </div>
       <div class="card-dashboard-body">
-        <?php if (!empty($ressources)): ?>
+        <?php if (!empty($resources)): ?>
         <div class="table-wrapper">
           <table class="table-dashboard">
             <thead>
@@ -55,7 +58,7 @@
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($ressources as $r): ?>
+              <?php foreach ($resources as $r): ?>
               <tr>
                 <td><?= htmlspecialchars($r['title']) ?></td>
                 <td><?= htmlspecialchars($r['category_name'] ?? '-') ?></td>

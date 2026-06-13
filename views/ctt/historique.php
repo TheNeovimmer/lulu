@@ -16,8 +16,8 @@
             <div class="form-floating">
               <select name="status" class="form-select">
                 <option value="">Tous</option>
-                <option value="résolu" <?= ($_GET['status'] ?? '') === 'résolu' ? 'selected' : '' ?>>Résolus</option>
-                <option value="fermé" <?= ($_GET['status'] ?? '') === 'fermé' ? 'selected' : '' ?>>Fermés</option>
+                <option value="closed" <?= ($_GET['status'] ?? '') === 'closed' ? 'selected' : '' ?>>Résolus</option>
+                <option value="closed" <?= ($_GET['status'] ?? '') === 'closed' ? 'selected' : '' ?>>Fermés</option>
               </select>
               <label>Statut</label>
             </div>
@@ -59,7 +59,7 @@
                   <?php endif; ?>
                 </td>
                 <td>
-                  <?php $statusClasses = ['ouvert' => 'success', 'en_cours' => 'warning', 'résolu' => 'info', 'fermé' => 'danger']; ?>
+                  <?php $statusClasses = ['open' => 'success', 'in_progress' => 'warning', 'closed' => 'info']; ?>
                   <span class="badge-dashboard <?= $statusClasses[$t['status']] ?? 'info' ?>"><?= ucfirst($t['status']) ?></span>
                 </td>
                 <td><?= htmlspecialchars($t['assigned_name'] ?? '-') ?></td>

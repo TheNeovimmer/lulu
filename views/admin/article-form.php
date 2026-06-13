@@ -10,6 +10,7 @@
   <div class="card-dashboard">
     <div class="card-dashboard-body">
       <form action="/admin/articles/<?= isset($article) ? 'edit/' . $article['id'] : 'create' ?>" method="post" enctype="multipart/form-data" class="form-dashboard">
+        <?= \App\Core\Session::csrf_field() ?>
         <div class="row g-4">
           <div class="col-md-8">
             <div class="form-floating">

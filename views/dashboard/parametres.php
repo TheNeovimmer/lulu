@@ -17,6 +17,7 @@
       </div>
       <div class="card-dashboard-body">
         <form method="POST" action="/dashboard/parametres" class="form-dashboard">
+          <?= \App\Core\Session::csrf_field() ?>
           <div class="form-floating mb-3">
             <input type="password" name="old_password" class="form-control" id="floatingOldPassword" placeholder="Ancien mot de passe" required>
             <label for="floatingOldPassword">Ancien mot de passe</label>

@@ -35,17 +35,42 @@ class AdminResourceController {
 
     public function store() {
         $db = Database::getInstance();
+        $title = Request::post('title');
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
         $db->insert(
-            "INSERT INTO resources (title, description, file_url, category_id, expert_id) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO resources (title, slug, description, file_url, type, status, category_id, user_id) VALUES (?, ?, ?, ?, ?, 'published', ?, ?)",
             [
-                Request::post('title'),
+                $title,
+                $slug,
                 Request::post('description'),
                 Request::post('file_url'),
+                Request::post('type', 'guide'),
                 Request::post('category_id'),
                 Request::post('expert_id') ?: null,
             ]
         );
         Session::setFlash('success', 'Ressource créée avec succès.');
+        Request::redirect('/admin/ressources');
+    }
+
+    public function edit($id) {
+        $db = Database::getInstance();
+        $resource = $db->fetch("SELECT * FROM resources WHERE id = ?", [$id]);
+        if (!$resource) { Request::redirect('/admin/ressources'); }
+        $categories = $db->fetchAll("SELECT * FROM categories ORDER BY name");
+        $experts = $db->fetchAll("SELECT u.id, u.name FROM users u JOIN roles r ON u.role_id = r.id WHERE r.slug = 'expert' ORDER BY u.name");
+        View::render('admin/ressource-form', compact('resource', 'categories', 'experts'), 'admin');
+    }
+
+    public function update($id) {
+        $db = Database::getInstance();
+        $title = Request::post('title');
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        $db->query(
+            "UPDATE resources SET title = ?, slug = ?, description = ?, file_url = ?, type = ?, category_id = ?, user_id = ? WHERE id = ?",
+            [$title, $slug, Request::post('description'), Request::post('file_url'), Request::post('type', 'guide'), Request::post('category_id'), Request::post('expert_id'), $id]
+        );
+        Session::setFlash('success', 'Ressource mise à jour.');
         Request::redirect('/admin/ressources');
     }
 

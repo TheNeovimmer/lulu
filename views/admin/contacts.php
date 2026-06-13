@@ -36,15 +36,15 @@
           <td class="td-muted"><?= htmlspecialchars(mb_substr($contact['message'], 0, 60)) ?><?= mb_strlen($contact['message']) > 60 ? '...' : '' ?></td>
           <td class="td-muted"><?= htmlspecialchars($contact['created_at']) ?></td>
           <td>
-            <?php if ($contact['read']): ?>
+            <?php if ($contact['is_read']): ?>
             <span class="badge-dashboard">Lu</span>
             <?php else: ?>
             <span class="badge-dashboard info">Non lu</span>
             <?php endif; ?>
           </td>
           <td class="actions-cell">
-            <a href="/admin/contacts/view/<?= $contact['id'] ?>" class="btn-icon"><i class="bi bi-eye"></i></a>
             <form action="/admin/contacts/delete/<?= $contact['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
               <button type="submit" class="btn-icon danger" onclick="return confirm('Supprimer ce message ?')"><i class="bi bi-trash"></i></button>
             </form>
           </td>

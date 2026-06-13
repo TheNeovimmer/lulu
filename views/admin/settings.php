@@ -9,15 +9,12 @@
 
   <div class="card-dashboard">
     <div class="card-dashboard-body">
-      <form action="/admin/settings" method="post" class="form-dashboard">
+      <form action="/admin/parametres" method="post" class="form-dashboard">
+        <?= \App\Core\Session::csrf_field() ?>
         <?php foreach ($settings as $setting): ?>
         <div class="form-floating">
-          <?php if ($setting['type'] === 'textarea'): ?>
-          <textarea name="settings[<?= htmlspecialchars($setting['key']) ?>]" class="form-control" id="setting_<?= htmlspecialchars($setting['key']) ?>" rows="4"><?= htmlspecialchars($setting['value']) ?></textarea>
-          <?php else: ?>
-          <input type="<?= htmlspecialchars($setting['type'] ?? 'text') ?>" name="settings[<?= htmlspecialchars($setting['key']) ?>]" class="form-control" id="setting_<?= htmlspecialchars($setting['key']) ?>" value="<?= htmlspecialchars($setting['value']) ?>">
-          <?php endif; ?>
-          <label for="setting_<?= htmlspecialchars($setting['key']) ?>"><?= htmlspecialchars($setting['label']) ?></label>
+          <input type="text" name="settings[<?= htmlspecialchars($setting['key_name']) ?>]" class="form-control" id="setting_<?= htmlspecialchars($setting['key_name']) ?>" value="<?= htmlspecialchars($setting['value'] ?? '') ?>">
+          <label for="setting_<?= htmlspecialchars($setting['key_name']) ?>"><?= htmlspecialchars($setting['key_name']) ?></label>
         </div>
         <?php endforeach; ?>
         <button type="submit" class="btn-dashboard btn-dashboard-primary">Enregistrer les paramètres</button>

@@ -24,7 +24,7 @@ class AdminSettingsController
         );
         $settingsMap = [];
         foreach ($settings as $s) {
-            $settingsMap[$s["key"]] = $s["value"];
+            $settingsMap[$s["key_name"]] = $s["value"];
         }
         View::render(
             "admin/settings",
@@ -36,28 +36,18 @@ class AdminSettingsController
     public function update()
     {
         $db = Database::getInstance();
-        $keys = Request::post("keys", []);
-        $values = Request::post("values", []);
+        $settings = Request::post("settings", []);
 
-        foreach ($keys as $i => $key) {
-            $value = $values[$i] ?? "";
-            $existing = $db->fetch("SELECT id FROM settings WHERE `key` = ?", [
-                $key,
-            ]);
+        foreach ($settings as $key => $value) {
+            $existing = $db->fetch("SELECT id FROM settings WHERE `key_name` = ?", [$key]);
             if ($existing) {
-                $db->query("UPDATE settings SET `value` = ? WHERE `key` = ?", [
-                    $value,
-                    $key,
-                ]);
+                $db->query("UPDATE settings SET `value` = ? WHERE `key_name` = ?", [$value, $key]);
             } else {
-                $db->insert(
-                    "INSERT INTO settings (`key`, `value`) VALUES (?, ?)",
-                    [$key, $value],
-                );
+                $db->insert("INSERT INTO settings (`key_name`, `value`) VALUES (?, ?)", [$key, $value]);
             }
         }
 
         Session::setFlash("success", "Paramètres mis à jour.");
-        Request::redirect("/admin/settings");
+        Request::redirect("/admin/parametres");
     }
 }

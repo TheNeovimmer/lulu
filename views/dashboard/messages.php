@@ -66,6 +66,7 @@
         </div>
 
         <form method="POST" action="/dashboard/messagerie/send" class="mt-auto">
+          <?= \App\Core\Session::csrf_field() ?>
           <input type="hidden" name="receiver_id" value="<?= $activePartner['id'] ?>">
           <div class="input-group">
             <textarea name="message" class="form-control" placeholder="Écrivez votre message..." rows="1" required style="border: 1px solid var(--dborder); border-radius: var(--dradius-sm); font-family: var(--dfont);"></textarea>

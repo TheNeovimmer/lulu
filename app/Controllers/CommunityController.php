@@ -66,6 +66,30 @@ class CommunityController extends Controller {
         $this->render('pages/sujet', compact('post', 'comments', 'likesCount', 'userLiked'));
     }
 
+    public function store() {
+        if (!Session::has('user_id')) {
+            header('Location: /auth/login');
+            exit;
+        }
+
+        $title = trim(Request::post('title'));
+        $content = trim(Request::post('content'));
+
+        if (empty($title) || empty($content)) {
+            Session::setFlash('error', 'Le titre et le contenu sont requis.');
+            Request::back();
+        }
+
+        $db = Database::getInstance();
+        $db->insert(
+            "INSERT INTO community_posts (title, content, user_id, status, created_at) VALUES (?, ?, ?, 'published', NOW())",
+            [$title, $content, Session::get('user_id')]
+        );
+
+        Session::setFlash('success', 'Publication créée avec succès.');
+        Request::redirect('/communaute');
+    }
+
     public function comment($id) {
         if (!Session::has('user_id')) {
             header('Location: /auth/login');
@@ -96,6 +120,15 @@ class CommunityController extends Controller {
             $db->query("DELETE FROM community_likes WHERE id = ?", [$existing['id']]);
         } else {
             $db->insert("INSERT INTO community_likes (post_id, user_id, created_at) VALUES (?, ?, NOW())", [$id, $userId]);
+        }
+
+        $liked = !$existing;
+        $count = $db->fetch("SELECT COUNT(*) as count FROM community_likes WHERE post_id = ?", [$id])['count'];
+
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['liked' => $liked, 'count' => $count]);
+            exit;
         }
 
         Request::back();

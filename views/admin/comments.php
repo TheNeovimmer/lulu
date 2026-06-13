@@ -30,8 +30,8 @@
         <?php foreach ($comments as $comment): ?>
         <tr>
           <td><?= htmlspecialchars(mb_substr($comment['content'], 0, 60)) ?><?= mb_strlen($comment['content']) > 60 ? '...' : '' ?></td>
-          <td class="td-muted"><?= htmlspecialchars($comment['author_name']) ?></td>
-          <td class="td-muted"><?= htmlspecialchars($comment['source_title']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($comment['user_name']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($comment['article_title']) ?></td>
           <td>
             <?php if ($comment['status'] === 'approved'): ?>
             <span class="badge-dashboard success">Approuvé</span>
@@ -44,11 +44,21 @@
           <td class="td-muted"><?= htmlspecialchars($comment['created_at']) ?></td>
           <td class="actions-cell">
             <?php if ($comment['status'] !== 'approved'): ?>
-            <a href="/admin/comments/approve/<?= $comment['id'] ?>" class="btn-icon success"><i class="bi bi-check-circle"></i></a>
+            <form action="/admin/comments/approve/<?= $comment['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon success"><i class="bi bi-check-circle"></i></button>
+            </form>
             <?php endif; ?>
             <?php if ($comment['status'] !== 'rejected'): ?>
-            <a href="/admin/comments/reject/<?= $comment['id'] ?>" class="btn-icon danger"><i class="bi bi-x-circle"></i></a>
+            <form action="/admin/comments/reject/<?= $comment['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon danger"><i class="bi bi-x-circle"></i></button>
+            </form>
             <?php endif; ?>
+            <form action="/admin/comments/delete/<?= $comment['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon danger" onclick="return confirm('Supprimer ce commentaire ?')"><i class="bi bi-trash"></i></button>
+            </form>
           </td>
         </tr>
         <?php endforeach; ?>

@@ -7,8 +7,7 @@ use App\Core\Session;
 
 class ExpertController extends Controller {
     public function __construct() {
-        // Adapt layout and auth check based on route prefix
-        if (strpos($_SERVER['REQUEST_URI'], '/expert') === 0) {
+        if (strpos($_SERVER['REQUEST_URI'], '/expert/') === 0) {
             $this->layout = 'expert';
             $this->authCheck();
             if (Session::get('user_role_slug') !== 'expert') {
@@ -17,7 +16,6 @@ class ExpertController extends Controller {
             }
         } else {
             $this->layout = 'front';
-            $this->authCheck();
         }
     }
 
@@ -37,16 +35,24 @@ class ExpertController extends Controller {
         $userId = Session::get('user_id');
 
         if (Request::isPost()) {
+            $name = trim(Request::post('name'));
             $specialty = trim(Request::post('specialty'));
             $bio = trim(Request::post('bio'));
             $address = trim(Request::post('address'));
             $phone = trim(Request::post('phone'));
 
             $db->query(
-                "UPDATE users SET specialty = ?, bio = ?, address = ?, phone = ? WHERE id = ?",
-                [$specialty, $bio, $address, $phone, $userId]
+                "UPDATE users SET name = ?, specialty = ?, bio = ?, address = ?, phone = ? WHERE id = ?",
+                [$name, $specialty, $bio, $address, $phone, $userId]
             );
 
+            $avatar = \App\Helpers\Avatar::upload($_FILES['avatar'] ?? []);
+            if ($avatar) {
+                $db->query("UPDATE users SET avatar = ? WHERE id = ?", [$avatar, $userId]);
+                Session::set('user_avatar', '/uploads/avatars/' . $avatar);
+            }
+
+            Session::set('user_name', $name);
             Session::setFlash('success', 'Profil professionnel mis à jour.');
             Request::back();
         }
@@ -174,6 +180,34 @@ class ExpertController extends Controller {
 
         $db->query("UPDATE users SET password = ? WHERE id = ?", [password_hash($newPassword, PASSWORD_BCRYPT), $userId]);
         Session::setFlash('success', 'Mot de passe modifié avec succès.');
+        Request::back();
+    }
+
+    public function createResource() {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $title = trim(Request::post('title'));
+        $description = Request::post('description');
+        $type = Request::post('type', 'guide');
+        $categoryId = Request::post('category_id');
+        $userId = Session::get('user_id');
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        $slug = $slug ?: 'resource-' . time();
+        $db->insert("INSERT INTO resources (title, slug, description, type, category_id, user_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'published', NOW())", [$title, $slug, $description, $type, $categoryId, $userId]);
+        Session::setFlash('success', 'Ressource créée.');
+        Request::back();
+    }
+
+    public function readAllNotifications() {
+        $db = Database::getInstance();
+        $db->query("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0", [Session::get('user_id')]);
+        Session::setFlash('success', 'Notifications marquées comme lues.');
+        Request::back();
+    }
+
+    public function readNotification($id) {
+        $db = Database::getInstance();
+        $db->query("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", [$id, Session::get('user_id')]);
         Request::back();
     }
 
