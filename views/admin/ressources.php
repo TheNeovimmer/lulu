@@ -1,77 +1,70 @@
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4" data-animate="fade-up">
-    <div>
-      <h1 class="section-title text-white mb-1">Ressources</h1>
-      <p class="section-subtitle text-white-50 mb-0">Gérez les ressources PDF téléchargeables</p>
-    </div>
-    <a href="/admin/ressources/create" class="btn btn-luma">Nouvelle ressource</a>
-  </div>
-
-  <div class="divider-accent mb-4"></div>
-
+<div class="content-dashboard">
   <?php if ($flash = \App\Core\Session::getFlash('success')): ?>
-  <div class="alert alert-success animate-fade-up"><?= htmlspecialchars($flash) ?></div>
+  <div class="alert alert-success"><?= htmlspecialchars($flash) ?></div>
   <?php endif; ?>
 
   <?php if ($flash = \App\Core\Session::getFlash('error')): ?>
-  <div class="alert alert-danger animate-fade-up"><?= htmlspecialchars($flash) ?></div>
+  <div class="alert alert-danger"><?= htmlspecialchars($flash) ?></div>
   <?php endif; ?>
 
-  <?php if (empty($ressources)): ?>
-  <div class="empty-state card card-luma p-5 text-center" data-animate="fade-up">
-    <div class="stat-icon text-light-pink mb-3">
-      <i class="bi bi-file-earmark-pdf fs-1"></i>
+  <div class="page-header-dashboard">
+    <h1 class="page-title-dashboard">Ressources</h1>
+    <div class="page-actions-dashboard">
+      <a href="/admin/ressources/create" class="btn-dashboard btn-dashboard-primary">Nouvelle ressource</a>
     </div>
-    <h4 class="text-white mb-2">Aucune ressource</h4>
-    <p class="text-white-50 mb-4">Aucune ressource disponible pour le moment.</p>
-    <a href="/admin/ressources/create" class="btn btn-luma">Créer une ressource</a>
+  </div>
+
+  <?php if (empty($ressources)): ?>
+  <div class="empty-state-dashboard">
+    <i class="bi bi-file-earmark-pdf"></i>
+    <h5>Aucune ressource</h5>
+    <p>Aucune ressource disponible pour le moment.</p>
+    <a href="/admin/ressources/create" class="btn-dashboard btn-dashboard-primary">Créer une ressource</a>
   </div>
   <?php else: ?>
-  <div class="card card-luma" data-animate="fade-up">
-    <div class="card-body p-0">
-      <table class="table table-luma mb-0">
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Catégorie</th>
-            <th>Expert</th>
-            <th>Téléchargements</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($ressources as $ressource): ?>
-          <tr>
-            <td><?= htmlspecialchars($ressource['title']) ?></td>
-            <td><?= htmlspecialchars($ressource['category_name']) ?></td>
-            <td><?= htmlspecialchars($ressource['expert_name']) ?></td>
-            <td><?= htmlspecialchars($ressource['downloads']) ?></td>
-            <td>
-              <button type="button" class="btn btn-outline-danger-luma btn-sm" data-bs-toggle="modal" data-bs-target="#deleteRessourceModal<?= $ressource['id'] ?>">Supprimer</button>
-            </td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
+  <div class="table-wrapper">
+    <table class="table-dashboard">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Catégorie</th>
+          <th>Expert</th>
+          <th>Téléchargements</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($ressources as $ressource): ?>
+        <tr>
+          <td><?= htmlspecialchars($ressource['title']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($ressource['category_name']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($ressource['expert_name']) ?></td>
+          <td class="td-muted"><?= htmlspecialchars($ressource['downloads']) ?></td>
+          <td class="actions-cell">
+            <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteRessourceModal<?= $ressource['id'] ?>"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
   </div>
   <?php endif; ?>
 
   <?php foreach ($ressources as $ressource): ?>
-  <div class="modal fade" id="deleteRessourceModal<?= $ressource['id'] ?>" tabindex="-1">
+  <div class="modal fade modal-dashboard" id="deleteRessourceModal<?= $ressource['id'] ?>" tabindex="-1">
     <div class="modal-dialog">
-      <div class="modal-content bg-luma-glass">
-        <div class="modal-header border-pink">
-          <h5 class="modal-title text-white font-heading">Confirmer la suppression</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmer la suppression</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body text-white">
+        <div class="modal-body">
           Supprimer la ressource « <?= htmlspecialchars($ressource['title']) ?> » ?
         </div>
-        <div class="modal-footer border-pink">
-          <button type="button" class="btn btn-outline-luma" data-bs-dismiss="modal">Annuler</button>
-          <form action="/admin/ressources/delete/<?= $ressource['id'] ?>" method="post" class="d-inline">
-            <button type="submit" class="btn btn-danger">Supprimer</button>
+        <div class="modal-footer">
+          <button type="button" class="btn-dashboard btn-dashboard-outline" data-bs-dismiss="modal">Annuler</button>
+          <form action="/admin/ressources/delete/<?= $ressource['id'] ?>" method="post" class="inline-form">
+            <button type="submit" class="btn-dashboard btn-dashboard-primary">Supprimer</button>
           </form>
         </div>
       </div>

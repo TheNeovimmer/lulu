@@ -12,11 +12,18 @@ class AdminController {
         $stats = [
             'users' => $db->fetch("SELECT COUNT(*) as count FROM users")['count'],
             'articles' => $db->fetch("SELECT COUNT(*) as count FROM articles")['count'],
-            'comments' => $db->fetch("SELECT COUNT(*) as count FROM comments WHERE status='pending'")['count'],
-            'testimonials' => $db->fetch("SELECT COUNT(*) as count FROM testimonials WHERE status='pending'")['count'],
-            'contacts' => $db->fetch("SELECT COUNT(*) as count FROM contacts WHERE is_read=0")['count'],
-            'newsletters' => $db->fetch("SELECT COUNT(*) as count FROM newsletters WHERE is_active=1")['count'],
+            'tickets_open' => $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status='open'")['count'],
+            'contacts_unread' => $db->fetch("SELECT COUNT(*) as count FROM contacts WHERE is_read=0")['count'],
         ];
-        View::render('admin/dashboard', compact('stats'), 'admin');
+        
+        $recentUsers = $db->fetchAll(
+            "SELECT u.name, u.email, r.name as role, u.created_at 
+             FROM users u 
+             LEFT JOIN roles r ON u.role_id = r.id 
+             ORDER BY u.created_at DESC 
+             LIMIT 5"
+        );
+
+        View::render('admin/dashboard', compact('stats', 'recentUsers'), 'admin');
     }
 }

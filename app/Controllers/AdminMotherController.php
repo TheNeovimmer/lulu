@@ -17,12 +17,13 @@ class AdminMotherController {
     public function index() {
         $db = Database::getInstance();
         $mamans = $db->fetchAll(
-            "SELECT u.*, p.due_date, p.weeks_gestation, p.created_at as pregnancy_since
-             FROM users u
-             LEFT JOIN pregnancies p ON u.id = p.user_id
-             JOIN roles r ON u.role_id = r.id
-             WHERE r.slug = 'maman'
-             ORDER BY u.created_at DESC"
+            "SELECT u.*, p.due_date, p.week as weeks_gestation, p.created_at as pregnancy_since
+                         FROM users u
+                         LEFT JOIN mothers m ON u.id = m.user_id
+                         LEFT JOIN pregnancies p ON m.id = p.mother_id
+                         JOIN roles r ON u.role_id = r.id
+                         WHERE r.slug = 'maman'
+                         ORDER BY u.created_at DESC",
         );
         View::render('admin/mamans', compact('mamans'), 'admin');
     }

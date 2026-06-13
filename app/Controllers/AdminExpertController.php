@@ -17,12 +17,11 @@ class AdminExpertController {
     public function index() {
         $db = Database::getInstance();
         $experts = $db->fetchAll(
-            "SELECT u.*, e.specialty, e.is_verified, e.biography
-             FROM users u
-             LEFT JOIN expert_profiles e ON u.id = e.user_id
-             JOIN roles r ON u.role_id = r.id
-             WHERE r.slug = 'expert'
-             ORDER BY u.created_at DESC"
+            "SELECT u.*, u.specialty as specialty, (CASE WHEN u.status = 'active' THEN 1 ELSE 0 END) as is_verified, u.bio as biography
+                         FROM users u
+                         JOIN roles r ON u.role_id = r.id
+                         WHERE r.slug = 'expert'
+                         ORDER BY u.created_at DESC"
         );
         View::render('admin/experts', compact('experts'), 'admin');
     }

@@ -18,10 +18,10 @@ class AdminResourceController {
         $db = Database::getInstance();
         $resources = $db->fetchAll(
             "SELECT r.*, c.name as category_name, u.name as expert_name
-             FROM resources r
-             LEFT JOIN categories c ON r.category_id = c.id
-             LEFT JOIN users u ON r.expert_id = u.id
-             ORDER BY r.created_at DESC"
+                         FROM resources r
+                         LEFT JOIN categories c ON r.category_id = c.id
+                         LEFT JOIN users u ON r.user_id = u.id
+                         ORDER BY r.created_at DESC"
         );
         View::render('admin/ressources', compact('resources'), 'admin');
     }

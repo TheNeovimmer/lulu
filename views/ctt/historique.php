@@ -1,30 +1,37 @@
 <div class="row">
   <div class="col-12">
-    <h1 class="font-heading mb-4"><i class="bi bi-clock-history me-2 text-pink"></i>Historique des Tickets</h1>
-
-    <div class="card-luma p-4 mb-4" data-animate="fade-up">
-      <form method="GET" action="/ctt/historique" class="row g-3 align-items-end">
-        <div class="col-md-6">
-          <label class="form-label text-white-50">Rechercher</label>
-          <input type="text" name="search" class="form-control form-control-luma" placeholder="Sujet ou utilisateur..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-        </div>
-        <div class="col-md-4">
-          <label class="form-label text-white-50">Statut</label>
-          <select name="status" class="form-select form-control-luma">
-            <option value="">Tous</option>
-            <option value="résolu" <?= ($_GET['status'] ?? '') === 'résolu' ? 'selected' : '' ?>>Résolus</option>
-            <option value="fermé" <?= ($_GET['status'] ?? '') === 'fermé' ? 'selected' : '' ?>>Fermés</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn btn-luma w-100"><i class="bi bi-search me-1"></i>Filtrer</button>
-        </div>
-      </form>
+    <div class="card-dashboard form-dashboard mb-4">
+      <div class="card-dashboard-header">
+        <h5 class="card-dashboard-title">Filtrer l'historique</h5>
+      </div>
+      <div class="card-dashboard-body">
+        <form method="GET" action="/ctt/historique" class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <div class="form-floating">
+              <input type="text" name="search" class="form-control" placeholder="Sujet ou utilisateur..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+              <label>Rechercher</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select name="status" class="form-select">
+                <option value="">Tous</option>
+                <option value="résolu" <?= ($_GET['status'] ?? '') === 'résolu' ? 'selected' : '' ?>>Résolus</option>
+                <option value="fermé" <?= ($_GET['status'] ?? '') === 'fermé' ? 'selected' : '' ?>>Fermés</option>
+              </select>
+              <label>Statut</label>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <button type="submit" class="btn btn-dashboard btn-dashboard-primary w-100"><i class="bi bi-search me-1"></i>Filtrer</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <div class="card-luma p-4" data-animate="fade-up">
-      <div class="table-responsive">
-        <table class="table table-luma">
+    <div class="card-dashboard">
+      <div class="table-wrapper">
+        <table class="table-dashboard">
           <thead>
             <tr>
               <th>ID</th>
@@ -46,14 +53,14 @@
                 <td><?= htmlspecialchars($t['user_name'] ?? '-') ?></td>
                 <td>
                   <?php if ($t['priority'] === 'urgent'): ?>
-                    <span class="badge bg-danger">Urgent</span>
+                    <span class="badge-dashboard danger">Urgent</span>
                   <?php else: ?>
-                    <span class="badge bg-secondary">Normal</span>
+                    <span class="badge-dashboard info">Normal</span>
                   <?php endif; ?>
                 </td>
                 <td>
-                  <?php $statusClasses = ['ouvert' => 'bg-success', 'en_cours' => 'bg-warning text-dark', 'résolu' => 'bg-info', 'fermé' => 'bg-secondary']; ?>
-                  <span class="badge <?= $statusClasses[$t['status']] ?? 'bg-secondary' ?>"><?= ucfirst($t['status']) ?></span>
+                  <?php $statusClasses = ['ouvert' => 'success', 'en_cours' => 'warning', 'résolu' => 'info', 'fermé' => 'danger']; ?>
+                  <span class="badge-dashboard <?= $statusClasses[$t['status']] ?? 'info' ?>"><?= ucfirst($t['status']) ?></span>
                 </td>
                 <td><?= htmlspecialchars($t['assigned_name'] ?? '-') ?></td>
                 <td><?= date('d/m/Y', strtotime($t['created_at'])) ?></td>
@@ -61,7 +68,7 @@
               </tr>
               <?php endforeach; ?>
             <?php else: ?>
-              <tr><td colspan="8" class="text-center text-white-50">Aucun ticket trouvé.</td></tr>
+              <tr><td colspan="8" class="text-center text-muted py-4">Aucun ticket trouvé.</td></tr>
             <?php endif; ?>
           </tbody>
         </table>

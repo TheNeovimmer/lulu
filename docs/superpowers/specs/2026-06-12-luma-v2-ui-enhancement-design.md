@@ -75,14 +75,15 @@ Default: `transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1)` on all interactive
 
 | Page | Enhancements |
 |------|-------------|
-| **Home** | Hero with gradient overlay, staggered fade-up on heading/text/CTAs, stat counters animate-in on scroll, testimonial cards scale-in, featured blog cards with image zoom |
-| **Blog** | Category filter pills with active glow, blog cards with image zoom on hover, pagination with hover scale |
+| **Home** | Hero with gradient overlay, staggered fade-up on heading/text/CTAs, stat counters animate-in on scroll, testimonial cards scale-in, featured blog cards with image zoom + overlay gradient + category hover color, FAQ accordion with animated chevron + slide-down + glow hover, contact section with gradient overlay + glow orbs + glass card with accent bar + pulse dot + icon hover lift |
+| **Blog** | Category filter pills with active glow, blog cards with image zoom on hover + overlay gradient, pagination with hover scale |
 | **Blog Single** | Wider content max-width, related posts as mini-cards, comment cards with avatar circle, comment form with floating label |
 | **Auth** | Centered card on gradient bg, role selection cards (maman/expert) with icon + hover glow + selected state |
-| **Contact** | Icon service cards with hover lift, form with floating labels, send button arrow animation |
-| **FAQ** | Accordion with animated chevron, hover indicator, category dividers |
+| **Contact** | Gradient overlay background, glow orbs, glass-morphism card with gradient accent bar + pulse dot, icon-wrapped hover lift, social link scale animation |
+| **FAQ** | Accordion with animated chevron + slide-down keyframe, glow box-shadow on hover, is-open state with rose accent, smooth border/background transitions |
 | **Community** | Post cards with like/comment pill badges, new post modal centered with backdrop blur, comment thread with avatars |
 | **Resources** | Category filter pills, resource cards with color-coded category, download button with icon animation |
+| **Footer (all pages)** | Dark gradient background, ornamental glow orb, SVG social icons with hover lift + glow, column headings with underline accent, nav links with hover slide + underline animation, app store buttons with hover lift, bottom bar with copyright + legal links, dashboard footer with minimal branding + quick links |
 
 ## Implementation Order
 1. Create `animations.css` — all keyframes + animation utility classes

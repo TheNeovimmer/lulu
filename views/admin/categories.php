@@ -1,90 +1,77 @@
-<div class="container-fluid py-4">
-  <div data-animate="fade-up">
-    <h1 class="section-title text-white mb-1">Catégories</h1>
-    <p class="section-subtitle text-white-50 mb-4">Organisez vos articles par catégories</p>
-  </div>
-
-  <div class="divider-accent mb-4"></div>
-
+<div class="content-dashboard">
   <?php if ($flash = \App\Core\Session::getFlash('success')): ?>
-  <div class="alert alert-success animate-fade-up"><?= htmlspecialchars($flash) ?></div>
+  <div class="alert alert-success"><?= htmlspecialchars($flash) ?></div>
   <?php endif; ?>
 
   <?php if ($flash = \App\Core\Session::getFlash('error')): ?>
-  <div class="alert alert-danger animate-fade-up"><?= htmlspecialchars($flash) ?></div>
+  <div class="alert alert-danger"><?= htmlspecialchars($flash) ?></div>
   <?php endif; ?>
 
   <?php if (empty($categories)): ?>
-  <div class="empty-state card card-luma p-5 text-center" data-animate="fade-up">
-    <div class="stat-icon text-light-pink mb-3">
-      <i class="bi bi-tags fs-1"></i>
-    </div>
-    <h4 class="text-white mb-2">Aucune catégorie</h4>
-    <p class="text-white-50 mb-0">Créez votre première catégorie ci-contre.</p>
+  <div class="empty-state-dashboard">
+    <i class="bi bi-tags"></i>
+    <h5>Aucune catégorie</h5>
+    <p>Créez votre première catégorie ci-contre.</p>
   </div>
   <?php endif; ?>
 
-  <div class="row g-4" data-animate="fade-up">
-    <div class="col-md-5">
-      <div class="card card-luma">
-        <div class="card-header bg-transparent border-pink">
-          <h5 class="text-white font-heading mb-0">Ajouter une catégorie</h5>
-        </div>
-        <div class="card-body">
-          <form action="/admin/categories/create" method="post">
-            <div class="mb-3">
-              <label class="form-label text-white-50">Nom</label>
-              <input type="text" name="name" class="form-control form-control-luma" required>
-            </div>
-            <button type="submit" class="btn btn-luma">Ajouter</button>
-          </form>
-        </div>
+  <div class="row-dashboard">
+    <div class="card-dashboard">
+      <div class="card-dashboard-header">
+        <h5 class="card-dashboard-title">Ajouter une catégorie</h5>
+      </div>
+      <div class="card-dashboard-body">
+        <form action="/admin/categories/create" method="post" class="form-dashboard">
+          <div class="form-floating">
+            <input type="text" name="name" class="form-control" id="catName" required>
+            <label for="catName">Nom</label>
+          </div>
+          <button type="submit" class="btn-dashboard btn-dashboard-primary">Ajouter</button>
+        </form>
       </div>
     </div>
-    <div class="col-md-7">
-      <div class="card card-luma">
-        <div class="card-header bg-transparent border-pink">
-          <h5 class="text-white font-heading mb-0">Catégories existantes</h5>
-        </div>
-        <div class="card-body p-0">
-          <table class="table table-luma mb-0">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($categories as $cat): ?>
-              <tr>
-                <td><?= htmlspecialchars($cat['name']) ?></td>
-                <td>
-                  <button type="button" class="btn btn-outline-danger-luma btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal<?= $cat['id'] ?>">Supprimer</button>
-                </td>
-              </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
+    <div class="card-dashboard">
+      <div class="card-dashboard-header">
+        <h5 class="card-dashboard-title">Catégories existantes</h5>
+      </div>
+      <div class="table-wrapper">
+        <table class="table-dashboard">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($categories as $cat): ?>
+            <tr>
+              <td><?= htmlspecialchars($cat['name']) ?></td>
+              <td class="actions-cell">
+                <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?= $cat['id'] ?>"><i class="bi bi-trash"></i></button>
+              </td>
+            </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 
   <?php foreach ($categories as $cat): ?>
-  <div class="modal fade" id="deleteModal<?= $cat['id'] ?>" tabindex="-1">
+  <div class="modal fade modal-dashboard" id="deleteModal<?= $cat['id'] ?>" tabindex="-1">
     <div class="modal-dialog">
-      <div class="modal-content bg-luma-glass">
-        <div class="modal-header border-pink">
-          <h5 class="modal-title text-white font-heading">Confirmer la suppression</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmer la suppression</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body text-white">
+        <div class="modal-body">
           Supprimer la catégorie « <?= htmlspecialchars($cat['name']) ?> » ?
         </div>
-        <div class="modal-footer border-pink">
-          <button type="button" class="btn btn-outline-luma" data-bs-dismiss="modal">Annuler</button>
-          <form action="/admin/categories/delete/<?= $cat['id'] ?>" method="post" class="d-inline">
-            <button type="submit" class="btn btn-danger">Supprimer</button>
+        <div class="modal-footer">
+          <button type="button" class="btn-dashboard btn-dashboard-outline" data-bs-dismiss="modal">Annuler</button>
+          <form action="/admin/categories/delete/<?= $cat['id'] ?>" method="post" class="inline-form">
+            <button type="submit" class="btn-dashboard btn-dashboard-primary">Supprimer</button>
           </form>
         </div>
       </div>

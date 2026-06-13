@@ -5,7 +5,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS activity_logs;
 DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS settings;
+DROP TABLE IF EXISTS ticket_messages;
 DROP TABLE IF EXISTS tickets;
+DROP TABLE IF EXISTS appointments;
+DROP TABLE IF EXISTS expert_messages;
+DROP TABLE IF EXISTS baby_memories;
+DROP TABLE IF EXISTS baby_milestones;
 DROP TABLE IF EXISTS community_comments;
 DROP TABLE IF EXISTS community_likes;
 DROP TABLE IF EXISTS community_posts;
@@ -64,6 +69,9 @@ CREATE TABLE users (
     phone VARCHAR(20) DEFAULT NULL,
     avatar VARCHAR(255) DEFAULT NULL,
     status ENUM('active', 'suspended', 'banned') DEFAULT 'active',
+    specialty VARCHAR(100) DEFAULT NULL,
+    bio TEXT DEFAULT NULL,
+    address VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
@@ -282,6 +290,17 @@ CREATE TABLE tickets (
     FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 20b. TICKET_MESSAGES
+CREATE TABLE ticket_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- 21. NOTIFICATIONS (nouvelle)
 CREATE TABLE notifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -419,3 +438,50 @@ INSERT INTO settings (key_name, value, group_name) VALUES
 ('site_description', 'Là où commence le soin', 'general'),
 ('contact_email', 'hello@luma.tn', 'contact'),
 ('contact_phone', '+216 97 203 908', 'contact');
+
+-- 24. APPOINTMENTS
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mother_id INT NOT NULL,
+    expert_id INT NOT NULL,
+    appointment_date DATETIME NOT NULL,
+    status ENUM('pending', 'confirmed', 'cancelled') DEFAULT 'pending',
+    notes TEXT DEFAULT NULL,
+    type ENUM('online', 'in_person') DEFAULT 'online',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (mother_id) REFERENCES mothers(id) ON DELETE CASCADE,
+    FOREIGN KEY (expert_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 25. EXPERT_MESSAGES
+CREATE TABLE expert_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 26. BABY_MEMORIES
+CREATE TABLE baby_memories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    baby_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    event_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (baby_id) REFERENCES babies(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 27. BABY_MILESTONES
+CREATE TABLE baby_milestones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    baby_id INT NOT NULL,
+    milestone_key VARCHAR(100) NOT NULL,
+    achieved_date DATE DEFAULT NULL,
+    FOREIGN KEY (baby_id) REFERENCES babies(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_baby_milestone (baby_id, milestone_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

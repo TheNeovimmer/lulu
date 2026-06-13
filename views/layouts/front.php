@@ -53,60 +53,7 @@
     <?= $content ?>
   </main>
 
-  <footer class="footer-luma mt-5">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-lg-4">
-          <div class="footer-logo" style="display:flex;align-items:center;">
-            <img src="/assets/images/home/logo.svg" alt="LUMA" height="40">
-          </div>
-          <p class="footer-tagline">Là où commence le soin</p>
-          <div class="d-flex gap-2 mt-3">
-            <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
-            <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
-            <a href="#" class="social-link"><i class="bi bi-youtube"></i></a>
-          </div>
-        </div>
-        <div class="col-6 col-lg-2">
-          <h6>LUMA</h6>
-          <a href="/a-propos" class="footer-link">À propos</a>
-          <a href="/blog" class="footer-link">Blog</a>
-          <a href="/communaute" class="footer-link">Communauté</a>
-        </div>
-        <div class="col-6 col-lg-2">
-          <h6>Ressources</h6>
-          <a href="/faq" class="footer-link">FAQ</a>
-          <a href="/contact" class="footer-link">Contact</a>
-          <a href="/ressources" class="footer-link">Guides</a>
-        </div>
-        <div class="col-lg-4">
-          <h6>Télécharger l'app</h6>
-          <div class="d-flex gap-2 mt-2 flex-wrap">
-            <div class="app-store-btn">
-              <i class="bi bi-apple fs-4" style="color:#F0A0BB;"></i>
-              <div>
-                <span class="store-sub">Télécharger sur</span>
-                <span class="store-main">App Store</span>
-              </div>
-            </div>
-            <div class="app-store-btn">
-              <i class="bi bi-google-play fs-4" style="color:#F0A0BB;"></i>
-              <div>
-                <span class="store-sub">Disponible sur</span>
-                <span class="store-main">Google Play</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <div class="text-center py-3" style="background:#1f0912;">
-    <small style="color:rgba(255,255,255,0.2); font-family:'Inter',sans-serif; font-size:0.78rem;">
-      &copy; <?= date('Y') ?> LUMA. Tous droits réservés.
-    </small>
-  </div>
+  <?php require __DIR__ . '/../partials/footer-front.php'; ?>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/assets/js/app.js"></script>

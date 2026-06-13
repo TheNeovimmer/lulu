@@ -43,17 +43,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ── Sidebar toggle for mobile ──
   var sidebarToggle = document.getElementById('sidebarToggle');
-  var sidebar = document.querySelector('.sidebar-desktop');
+  var sidebar = document.querySelector('.sidebar-desktop, .sidebar-wrapper');
   var overlay = document.querySelector('.sidebar-overlay');
   if (sidebarToggle && sidebar) {
     sidebarToggle.addEventListener('click', function () {
       sidebar.classList.toggle('open');
-      if (overlay) overlay.classList.toggle('open');
+      sidebar.classList.toggle('show');
+      if (overlay) {
+        overlay.classList.toggle('open');
+        overlay.classList.toggle('show');
+      }
     });
     if (overlay) {
       overlay.addEventListener('click', function () {
         sidebar.classList.remove('open');
+        sidebar.classList.remove('show');
         overlay.classList.remove('open');
+        overlay.classList.remove('show');
       });
     }
   }

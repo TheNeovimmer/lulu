@@ -26,13 +26,12 @@ class AdminCommentController {
         }
 
         $comments = $db->fetchAll(
-            "SELECT c.*, u.name as user_name, a.title as article_title, cp.content as community_content
-             FROM comments c
-             LEFT JOIN users u ON c.user_id = u.id
-             LEFT JOIN articles a ON c.article_id = a.id
-             LEFT JOIN community_posts cp ON c.community_post_id = cp.id
-             $statusFilter
-             ORDER BY c.created_at DESC",
+            "SELECT c.*, u.name as user_name, a.title as article_title
+                         FROM comments c
+                         LEFT JOIN users u ON c.user_id = u.id
+                         LEFT JOIN articles a ON c.article_id = a.id
+                         $statusFilter
+                         ORDER BY c.created_at DESC",
             $params
         );
         View::render('admin/comments', compact('comments', 'status'), 'admin');

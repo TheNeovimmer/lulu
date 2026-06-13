@@ -1,88 +1,102 @@
-<div class="row g-4">
-  <div class="col-12">
-    <h1 class="font-heading mb-4">Tableau de bord — Support <span class="text-light-pink">👋</span></h1>
+<div>
+  <div class="welcome-card-dashboard">
+    <h2>Tableau de bord — Support 👋</h2>
+    <p>Vue d'ensemble de l'activité support.</p>
   </div>
 
-  <div class="col-md-4" data-animate="fade-up">
-    <div class="stat-card">
-      <i class="stat-icon bi bi-ticket"></i>
-      <div class="stat-number"><?= $stats['open_tickets'] ?? 0 ?></div>
-      <div class="stat-label">Tickets ouverts</div>
-      <div class="stat-accent"></div>
-    </div>
-  </div>
-  <div class="col-md-4" data-animate="fade-up">
-    <div class="stat-card">
-      <i class="stat-icon bi bi-check-circle"></i>
-      <div class="stat-number"><?= $stats['resolved_today'] ?? 0 ?></div>
-      <div class="stat-label">Résolus aujourd'hui</div>
-      <div class="stat-accent"></div>
-    </div>
-  </div>
-  <div class="col-md-4" data-animate="fade-up">
-    <div class="stat-card">
-      <i class="stat-icon bi bi-question-circle"></i>
-      <div class="stat-number"><?= $stats['faq_entries'] ?? 0 ?></div>
-      <div class="stat-label">Entrées FAQ</div>
-      <div class="stat-accent"></div>
-    </div>
-  </div>
-
-  <div class="col-md-8" data-animate="fade-up">
-    <div class="card-luma p-4">
-      <h5 class="section-title"><i class="bi bi-ticket me-2 text-pink"></i>Tickets récents</h5>
-      <div class="divider-accent"></div>
-      <?php if (!empty($recent_tickets)): ?>
-      <div class="table-responsive">
-        <table class="table table-luma">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Sujet</th>
-              <th>De</th>
-              <th>Priorité</th>
-              <th>Statut</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($recent_tickets as $t): ?>
-            <tr>
-              <td><?= $t['id'] ?></td>
-              <td><?= htmlspecialchars($t['subject']) ?></td>
-              <td><?= htmlspecialchars($t['user_name'] ?? '-') ?></td>
-              <td>
-                <?php if ($t['priority'] === 'urgent'): ?>
-                  <span class="badge bg-danger">Urgent</span>
-                <?php else: ?>
-                  <span class="badge bg-secondary">Normal</span>
-                <?php endif; ?>
-              </td>
-              <td>
-                <?php $statusClasses = ['ouvert' => 'bg-success', 'en_cours' => 'bg-warning text-dark', 'résolu' => 'bg-info', 'fermé' => 'bg-secondary']; ?>
-                <span class="badge <?= $statusClasses[$t['status']] ?? 'bg-secondary' ?>"><?= ucfirst($t['status']) ?></span>
-              </td>
-            </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+  <div class="stats-row-dashboard">
+    <div class="stat-card-dashboard">
+      <div class="stat-card-icon"><i class="bi bi-ticket"></i></div>
+      <div class="stat-card-info">
+        <span class="stat-card-number"><?= $stats['open_tickets'] ?? 0 ?></span>
+        <span class="stat-card-label">Tickets ouverts</span>
       </div>
-      <?php else: ?>
-      <div class="empty-state">
-        <i class="bi bi-ticket empty-state-icon"></i>
-        <p class="text-white-50">Aucun ticket récent.</p>
+    </div>
+    <div class="stat-card-dashboard">
+      <div class="stat-card-icon"><i class="bi bi-check-circle"></i></div>
+      <div class="stat-card-info">
+        <span class="stat-card-number"><?= $stats['resolved_today'] ?? 0 ?></span>
+        <span class="stat-card-label">Résolus aujourd'hui</span>
       </div>
-      <?php endif; ?>
+    </div>
+    <div class="stat-card-dashboard">
+      <div class="stat-card-icon"><i class="bi bi-question-circle"></i></div>
+      <div class="stat-card-info">
+        <span class="stat-card-number"><?= $stats['faq_entries'] ?? 0 ?></span>
+        <span class="stat-card-label">Entrées FAQ</span>
+      </div>
     </div>
   </div>
 
-  <div class="col-md-4" data-animate="fade-up">
-    <div class="card-luma p-4">
-      <h5 class="section-title">Actions rapides</h5>
-      <div class="divider-accent"></div>
-      <div class="d-grid gap-2">
-        <a href="/ctt/tickets" class="btn btn-luma"><i class="bi bi-ticket me-2"></i>Voir tickets</a>
-        <a href="/ctt/faq" class="btn btn-luma"><i class="bi bi-question-circle me-2"></i>Gérer FAQ</a>
-        <a href="/ctt/rapports" class="btn btn-luma"><i class="bi bi-bar-chart me-2"></i>Rapports</a>
+  <div class="row-dashboard">
+    <div class="card-dashboard">
+      <div class="card-dashboard-header">
+        <h5 class="card-dashboard-title"><i class="bi bi-ticket me-2"></i>Tickets récents</h5>
+      </div>
+      <div class="card-dashboard-body">
+        <?php if (!empty($recent_tickets)): ?>
+        <div class="table-wrapper">
+          <table class="table-dashboard">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Sujet</th>
+                <th>De</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($recent_tickets as $t): ?>
+              <tr>
+                <td><?= $t['id'] ?></td>
+                <td><?= htmlspecialchars($t['subject']) ?></td>
+                <td><?= htmlspecialchars($t['user_name'] ?? '-') ?></td>
+                <td>
+                  <?php if ($t['priority'] === 'urgent'): ?>
+                    <span class="badge-dashboard danger">Urgent</span>
+                  <?php else: ?>
+                    <span class="badge-dashboard info">Normal</span>
+                  <?php endif; ?>
+                </td>
+                <td>
+                  <?php $statusClasses = ['ouvert' => 'success', 'en_cours' => 'warning', 'résolu' => 'info', 'fermé' => 'danger']; ?>
+                  <span class="badge-dashboard <?= $statusClasses[$t['status']] ?? 'info' ?>"><?= ucfirst($t['status']) ?></span>
+                </td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+        <?php else: ?>
+        <div class="empty-state-dashboard">
+          <i class="bi bi-ticket"></i>
+          <h5>Aucun ticket</h5>
+          <p>Aucun ticket récent.</p>
+        </div>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <div class="card-dashboard">
+      <div class="card-dashboard-header">
+        <h5 class="card-dashboard-title">Actions rapides</h5>
+      </div>
+      <div class="card-dashboard-body">
+        <div class="quick-actions-dashboard">
+          <a href="/ctt/tickets" class="quick-action-card">
+            <i class="bi bi-ticket"></i>
+            <span>Voir tickets</span>
+          </a>
+          <a href="/ctt/faq" class="quick-action-card">
+            <i class="bi bi-question-circle"></i>
+            <span>Gérer FAQ</span>
+          </a>
+          <a href="/ctt/rapports" class="quick-action-card">
+            <i class="bi bi-bar-chart"></i>
+            <span>Rapports</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>

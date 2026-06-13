@@ -18,21 +18,21 @@ class AdminCommunityController {
         $db = Database::getInstance();
         $posts = $db->fetchAll(
             "SELECT p.*, u.name as author_name,
-                    (SELECT COUNT(*) FROM community_reactions WHERE post_id = p.id) as reaction_count
-             FROM community_posts p
-             LEFT JOIN users u ON p.user_id = u.id
-             ORDER BY p.is_hidden ASC, p.created_at DESC"
+                                (SELECT COUNT(*) FROM community_likes WHERE post_id = p.id) as reaction_count
+                         FROM community_posts p
+                         LEFT JOIN users u ON p.user_id = u.id
+                         ORDER BY FIELD(p.status, 'reported', 'published', 'hidden'), p.created_at DESC"
         );
         View::render('admin/communaute', compact('posts'), 'admin');
     }
 
     public function hide($id) {
         $db = Database::getInstance();
-        $post = $db->fetch("SELECT is_hidden FROM community_posts WHERE id = ?", [$id]);
+        $post = $db->fetch("SELECT status FROM community_posts WHERE id = ?", [$id]);
         if ($post) {
-            $newStatus = $post['is_hidden'] ? 0 : 1;
-            $db->query("UPDATE community_posts SET is_hidden = ? WHERE id = ?", [$newStatus, $id]);
-            Session::setFlash('success', $newStatus ? 'Publication masquée.' : 'Publication visible.');
+            $newStatus = $post['status'] === 'hidden' ? 'published' : 'hidden';
+            $db->query("UPDATE community_posts SET status = ? WHERE id = ?", [$newStatus, $id]);
+            Session::setFlash('success', $newStatus === 'hidden' ? 'Publication masquée.' : 'Publication visible.');
         }
         Request::redirect('/admin/communaute');
     }

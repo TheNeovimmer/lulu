@@ -35,6 +35,26 @@ $router->post('dashboard/vaccination', 'DashboardController@addVaccination');
 $router->get('dashboard/tickets', 'DashboardController@tickets');
 $router->post('dashboard/tickets', 'DashboardController@createTicket');
 $router->get('dashboard/notifications', 'DashboardController@notifications');
+$router->post('dashboard/notifications/read-all', 'DashboardController@readAllNotifications');
+$router->post('dashboard/notifications/read/{id}', 'DashboardController@readNotification');
+$router->get('dashboard/parametres', 'DashboardController@parametres');
+$router->post('dashboard/parametres', 'DashboardController@updateParametres');
+$router->post('dashboard/bebe/memories', 'DashboardController@memories');
+$router->post('dashboard/bebe/memories/delete/{id}', 'DashboardController@deleteMemory');
+$router->post('dashboard/bebe/milestones', 'DashboardController@updateMilestones');
+$router->get('dashboard/rendez-vous', 'DashboardController@appointments');
+$router->post('dashboard/rendez-vous/book', 'DashboardController@bookAppointment');
+$router->get('dashboard/messagerie', 'DashboardController@messages');
+$router->post('dashboard/messagerie/send', 'DashboardController@sendMessage');
+$router->get('dashboard/agenda', 'DashboardController@agenda');
+
+// Expert directory routes
+$router->get('experts', 'ExpertController@directory');
+$router->get('experts/{id}', 'ExpertController@showProfile');
+
+// Expert parameters route
+$router->get('expert/parametres', 'ExpertController@parametres');
+$router->post('expert/parametres', 'ExpertController@updateParametres');
 
 // Expert dashboard
 $router->get('expert/dashboard', 'ExpertController@index');
