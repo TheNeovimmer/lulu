@@ -48,6 +48,9 @@ $router->post('dashboard/rendez-vous/book', 'DashboardController@bookAppointment
 $router->get('dashboard/messagerie', 'DashboardController@messages');
 $router->post('dashboard/messagerie/send', 'DashboardController@sendMessage');
 $router->get('dashboard/agenda', 'DashboardController@agenda');
+$router->get('dashboard/temoignages', 'DashboardController@testimonials');
+$router->post('dashboard/temoignages', 'DashboardController@submitTestimonial');
+$router->post('dashboard/rendez-vous/cancel/{id}', 'DashboardController@cancelAppointment');
 
 // Expert directory routes
 $router->get('experts', 'ExpertController@directory');
@@ -65,12 +68,18 @@ $router->get('expert/questions', 'ExpertController@questions');
 $router->post('expert/questions/{id}', 'ExpertController@answerQuestion');
 $router->get('expert/articles', 'ExpertController@articles');
 $router->post('expert/articles/create', 'ExpertController@createArticle');
+$router->get('expert/articles/edit/{id}', 'ExpertController@editArticle');
+$router->post('expert/articles/update/{id}', 'ExpertController@updateArticle');
+$router->post('expert/articles/delete/{id}', 'ExpertController@deleteArticle');
 $router->get('expert/ressources', 'ExpertController@ressources');
 $router->post('expert/ressources/create', 'ExpertController@createResource');
+$router->get('expert/messagerie', 'ExpertController@messages');
+$router->post('expert/messagerie/send', 'ExpertController@sendMessage');
 $router->get('expert/notifications', 'ExpertController@notifications');
 $router->post('expert/notifications/read-all', 'ExpertController@readAllNotifications');
 $router->post('expert/notifications/read/{id}', 'ExpertController@readNotification');
 $router->get('expert/agenda', 'ExpertController@agenda');
+$router->post('expert/appointments/update/{id}', 'ExpertController@updateAppointment');
 
 // CTT dashboard
 $router->get('ctt/dashboard', 'CttController@index');
@@ -104,7 +113,9 @@ $router->get('admin/utilisateurs', 'AdminUserController@index');
 $router->post('admin/utilisateurs/create', 'AdminUserController@store');
 $router->post('admin/utilisateurs/toggle-role/{id}', 'AdminUserController@toggleRole');
 $router->post('admin/utilisateurs/suspendre/{id}', 'AdminUserController@suspend');
+$router->post('admin/utilisateurs/activate/{id}', 'AdminUserController@activate');
 $router->post('admin/utilisateurs/delete/{id}', 'AdminUserController@destroy');
+$router->get('admin/mamans', 'AdminMotherController@index');
 $router->get('admin/experts', 'AdminExpertController@index');
 $router->post('admin/experts/validate/{id}', 'AdminExpertController@validate');
 $router->post('admin/experts/delete/{id}', 'AdminExpertController@destroy');

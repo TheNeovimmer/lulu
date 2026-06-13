@@ -126,6 +126,11 @@
               <?= \App\Core\Session::csrf_field() ?>
               <button type="submit" class="btn-icon warning" onclick="return confirm('Suspendre cet utilisateur ?')"><i class="bi bi-pause-circle"></i></button>
             </form>
+            <?php else: ?>
+            <form action="/admin/utilisateurs/activate/<?= $user['id'] ?>" method="post" class="inline-form">
+              <?= \App\Core\Session::csrf_field() ?>
+              <button type="submit" class="btn-icon success" title="Réactiver"><i class="bi bi-play-circle"></i></button>
+            </form>
             <?php endif; ?>
             <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal<?= $user['id'] ?>"><i class="bi bi-trash"></i></button>
           </td>

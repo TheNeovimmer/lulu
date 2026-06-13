@@ -59,6 +59,10 @@ class AdminTicketController {
         $db = Database::getInstance();
         $expertId = Request::post('expert_id');
         $db->query("UPDATE tickets SET assigned_to = ?, status = 'in_progress' WHERE id = ?", [$expertId, $id]);
+        $db->insert(
+            "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Ticket assigné', 'Un ticket vous a été assigné par l\\'administrateur.', '/tickets/{$id}')",
+            [$expertId]
+        );
         Session::setFlash('success', 'Ticket assigné.');
         Request::redirect('/admin/tickets');
     }
@@ -66,6 +70,13 @@ class AdminTicketController {
     public function close($id) {
         $db = Database::getInstance();
         $db->query("UPDATE tickets SET status = 'closed' WHERE id = ?", [$id]);
+        $ticket = $db->fetch("SELECT user_id FROM tickets WHERE id = ?", [$id]);
+        if ($ticket) {
+            $db->insert(
+                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Ticket fermé', 'Votre ticket de support a été fermé.', '/dashboard/tickets')",
+                [$ticket['user_id']]
+            );
+        }
         Session::setFlash('success', 'Ticket fermé.');
         Request::redirect('/admin/tickets');
     }
@@ -83,6 +94,13 @@ class AdminTicketController {
         $userId = Session::get('user_id');
         if ($message) {
             $db->query("INSERT INTO ticket_messages (ticket_id, user_id, message, created_at) VALUES (?, ?, ?, NOW())", [$id, $userId, $message]);
+            $ticket = $db->fetch("SELECT user_id FROM tickets WHERE id = ?", [$id]);
+            if ($ticket && $ticket['user_id'] != $userId) {
+                $db->insert(
+                    "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Réponse à votre ticket', 'L\\'administrateur a répondu à votre ticket.', '/dashboard/tickets')",
+                    [$ticket['user_id']]
+                );
+            }
         }
         Session::setFlash('success', 'Réponse envoyée.');
         Request::redirect('/admin/tickets/' . $id);

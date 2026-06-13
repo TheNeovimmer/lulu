@@ -599,13 +599,58 @@ class DashboardController extends Controller {
             );
 
             // Notify receiver
+            $receiverLink = Session::get('user_role_slug') === 'expert' ? '/dashboard/messagerie?partner_id=' . $userId : '/expert/messagerie?partner_id=' . $userId;
             $db->insert(
-                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Nouveau message', 'Vous avez reçu un nouveau message de consultation.', ?)",
-                [$receiverId, Session::get('user_role_slug') === 'expert' ? '/dashboard/messagerie' : '/expert/dashboard']
+                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Nouveau message', 'Vous avez reçu un nouveau message.', ?)",
+                [$receiverId, $receiverLink]
             );
         }
 
         Request::redirect('/dashboard/messagerie?partner_id=' . $receiverId);
+    }
+
+    public function testimonials() {
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $testimonials = $db->fetchAll(
+            "SELECT * FROM testimonials WHERE user_id = ? ORDER BY created_at DESC",
+            [$userId]
+        );
+        $this->render('dashboard/testimonials', compact('testimonials'));
+    }
+
+    public function submitTestimonial() {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $content = trim(Request::post('content'));
+        $rating = (int)Request::post('rating', 5);
+        if ($rating < 1 || $rating > 5) $rating = 5;
+        if ($content === '') {
+            Session::setFlash('error', 'Le témoignage ne peut pas être vide.');
+            Request::back();
+        }
+        $db->insert(
+            "INSERT INTO testimonials (user_id, content, rating, status, created_at) VALUES (?, ?, ?, 'pending', NOW())",
+            [$userId, $content, $rating]
+        );
+        Session::setFlash('success', 'Témoignage soumis pour modération.');
+        Request::back();
+    }
+
+    public function cancelAppointment($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $motherId = $this->getMotherId($userId);
+        $appt = $db->fetch("SELECT * FROM appointments WHERE id = ? AND mother_id = ?", [$id, $motherId]);
+        if (!$appt) {
+            Session::setFlash('error', 'Rendez-vous introuvable.');
+            Request::back();
+        }
+        $db->query("UPDATE appointments SET status = 'cancelled' WHERE id = ?", [$id]);
+        Session::setFlash('success', 'Rendez-vous annulé.');
+        Request::back();
     }
 
     public function agenda() {

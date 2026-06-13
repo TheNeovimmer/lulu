@@ -7,7 +7,8 @@ $sidebarLinks = [
   ['url' => '/expert/articles', 'icon' => 'bi-file-text', 'label' => 'Articles'],
   ['url' => '/expert/ressources', 'icon' => 'bi-book', 'label' => 'Ressources'],
   ['url' => '/expert/agenda', 'icon' => 'bi-calendar-week', 'label' => 'Mon Agenda'],
-  ['url' => '/communaute', 'icon' => 'bi-chat-dots', 'label' => 'Communauté'],
+  ['url' => '/expert/messagerie', 'icon' => 'bi-chat-dots', 'label' => 'Messagerie'],
+  ['url' => '/communaute', 'icon' => 'bi-globe', 'label' => 'Communauté'],
   ['url' => '/expert/notifications', 'icon' => 'bi-bell', 'label' => 'Notifications'],
   ['url' => '/expert/parametres', 'icon' => 'bi-gear', 'label' => 'Paramètres'],
 ];

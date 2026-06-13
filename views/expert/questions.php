@@ -8,7 +8,7 @@
             <h5 class="card-dashboard-title"><?= htmlspecialchars($q['title']) ?></h5>
             <p class="text-muted small mb-2">
               Par <?= htmlspecialchars($q['author_name']) ?> — <?= date('d/m/Y H:i', strtotime($q['created_at'])) ?>
-              <span class="ms-2 badge-dashboard info">0 réponse(s)</span>
+              <span class="ms-2 badge-dashboard info"><?= $q['answers_count'] ?? 0 ?> réponse(s)</span>
             </p>
             <p><?= nl2br(htmlspecialchars($q['content'])) ?></p>
           </div>

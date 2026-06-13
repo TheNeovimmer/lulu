@@ -66,8 +66,26 @@ class ExpertController extends Controller {
     public function questions() {
         $db = Database::getInstance();
         $questions = $db->fetchAll(
-            "SELECT cp.*, u.name as author_name FROM community_posts cp LEFT JOIN users u ON cp.user_id = u.id WHERE cp.status = 'published' ORDER BY cp.created_at DESC"
+            "SELECT cp.*, u.name as author_name,
+                    (SELECT COUNT(*) FROM community_comments cc WHERE cc.post_id = cp.id) as answers_count
+             FROM community_posts cp
+             LEFT JOIN users u ON cp.user_id = u.id
+             WHERE cp.status = 'published'
+             ORDER BY cp.created_at DESC"
         );
+        foreach ($questions as &$q) {
+            $q['answers'] = $db->fetchAll(
+                "SELECT cc.*, u.name as author_name, u.role_id
+                 FROM community_comments cc
+                 JOIN users u ON cc.user_id = u.id
+                 WHERE cc.post_id = ?
+                 ORDER BY cc.created_at ASC",
+                [$q['id']]
+            );
+            foreach ($q['answers'] as &$a) {
+                $a['is_expert'] = $db->fetchColumn("SELECT slug FROM roles WHERE id = ?", [$a['role_id']]) === 'expert';
+            }
+        }
         $this->render('expert/questions', compact('questions'));
     }
 
@@ -77,10 +95,25 @@ class ExpertController extends Controller {
         }
 
         $db = Database::getInstance();
+        $content = trim(Request::post('content'));
+        if ($content === '') {
+            Session::setFlash('error', 'La réponse ne peut pas être vide.');
+            Request::back();
+        }
         $db->query(
             "INSERT INTO community_comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())",
-            [$id, Session::get('user_id'), Request::post('answer')]
+            [$id, Session::get('user_id'), $content]
         );
+
+        // Notify the post author
+        $post = $db->fetch("SELECT user_id FROM community_posts WHERE id = ?", [$id]);
+        if ($post && $post['user_id'] != Session::get('user_id')) {
+            $db->insert(
+                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Réponse à votre question', 'Un expert a répondu à votre question sur la communauté.', '/communaute/{$id}')",
+                [$post['user_id']]
+            );
+        }
+
         Session::setFlash('success', 'Réponse publiée.');
         Request::back();
     }
@@ -90,7 +123,11 @@ class ExpertController extends Controller {
         $userId = Session::get('user_id');
 
         $articles = $db->fetchAll(
-            "SELECT * FROM articles WHERE user_id = ? ORDER BY created_at DESC",
+            "SELECT a.*, c.name as category_name
+             FROM articles a
+             LEFT JOIN categories c ON a.category_id = c.id
+             WHERE a.user_id = ?
+             ORDER BY a.created_at DESC",
             [$userId]
         );
         $categories = $db->fetchAll("SELECT * FROM categories ORDER BY name ASC");
@@ -114,9 +151,13 @@ class ExpertController extends Controller {
             $slug = $originalSlug . '-' . $i++;
         }
 
+        $status = Request::post('status', 'draft');
+        if (!in_array($status, ['draft', 'published'])) {
+            $status = 'draft';
+        }
         $db->insert(
-            "INSERT INTO articles (title, slug, content, category_id, user_id, status, created_at) VALUES (?, ?, ?, ?, ?, 'published', NOW())",
-            [$title, $slug, $content, $categoryId, Session::get('user_id')]
+            "INSERT INTO articles (title, slug, content, category_id, user_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())",
+            [$title, $slug, $content, $categoryId, Session::get('user_id'), $status]
         );
         Session::setFlash('success', 'Article créé avec succès.');
         Request::back();
@@ -156,7 +197,8 @@ class ExpertController extends Controller {
         $appointments = $db->fetchAll(
             "SELECT a.*, u.name as mother_name
              FROM appointments a
-             JOIN users u ON a.mother_id = u.id
+             JOIN mothers m ON a.mother_id = m.id
+             JOIN users u ON m.user_id = u.id
              WHERE a.expert_id = ?
              ORDER BY a.appointment_date ASC",
             [$userId]
@@ -209,7 +251,25 @@ class ExpertController extends Controller {
         $userId = Session::get('user_id');
         $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
         $slug = $slug ?: 'resource-' . time();
-        $db->insert("INSERT INTO resources (title, slug, description, type, category_id, user_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'published', NOW())", [$title, $slug, $description, $type, $categoryId, $userId]);
+
+        // Handle file upload
+        $fileUrl = '';
+        $uploadDir = __DIR__ . '/../../public/uploads/ressources/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        if (!empty($_FILES['file_url']['name'])) {
+            $ext = pathinfo($_FILES['file_url']['name'], PATHINFO_EXTENSION);
+            $filename = $slug . '-' . time() . '.' . $ext;
+            if (move_uploaded_file($_FILES['file_url']['tmp_name'], $uploadDir . $filename)) {
+                $fileUrl = '/uploads/ressources/' . $filename;
+            }
+        }
+
+        $db->insert(
+            "INSERT INTO resources (title, slug, description, type, file_url, category_id, user_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'published', NOW())",
+            [$title, $slug, $description, $type, $fileUrl, $categoryId, $userId]
+        );
         Session::setFlash('success', 'Ressource créée.');
         Request::back();
     }
@@ -250,6 +310,150 @@ class ExpertController extends Controller {
         }
         
         $this->render('pages/expert_detail', compact('expert'));
+    }
+
+    public function messages() {
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+
+        $activePartnerId = Request::get('partner_id');
+
+        // Get all mothers who have messaged this expert
+        $conversations = $db->fetchAll(
+            "SELECT DISTINCT u.id, u.name, u.avatar,
+                    (SELECT message FROM expert_messages WHERE (sender_id = u.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = u.id) ORDER BY created_at DESC LIMIT 1) as last_message,
+                    (SELECT created_at FROM expert_messages WHERE (sender_id = u.id AND receiver_id = ?) OR (sender_id = ? AND receiver_id = u.id) ORDER BY created_at DESC LIMIT 1) as last_message_at,
+                    (SELECT COUNT(*) FROM expert_messages WHERE sender_id = u.id AND receiver_id = ? AND is_read = 0) as unread_count
+             FROM expert_messages em
+             JOIN users u ON (em.sender_id = u.id OR em.receiver_id = u.id)
+             WHERE (em.sender_id = ? OR em.receiver_id = ?)
+               AND u.id != ?
+               AND u.role_id = (SELECT id FROM roles WHERE slug = 'maman')
+             ORDER BY last_message_at DESC",
+            [$userId, $userId, $userId, $userId, $userId, $userId, $userId, $userId]
+        );
+
+        $chatHistory = [];
+        $activePartner = null;
+        if ($activePartnerId) {
+            $activePartner = $db->fetch("SELECT id, name, avatar FROM users WHERE id = ?", [$activePartnerId]);
+            if ($activePartner) {
+                $db->query("UPDATE expert_messages SET is_read = 1 WHERE sender_id = ? AND receiver_id = ?", [$activePartnerId, $userId]);
+                $chatHistory = $db->fetchAll(
+                    "SELECT em.*, u.name as sender_name
+                     FROM expert_messages em
+                     JOIN users u ON em.sender_id = u.id
+                     WHERE (em.sender_id = ? AND em.receiver_id = ?)
+                        OR (em.sender_id = ? AND em.receiver_id = ?)
+                     ORDER BY em.created_at ASC",
+                    [$userId, $activePartnerId, $activePartnerId, $userId]
+                );
+            }
+        }
+
+        $this->render('expert/messagerie', compact('conversations', 'chatHistory', 'activePartner'));
+    }
+
+    public function sendMessage() {
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $receiverId = Request::post('receiver_id');
+        $message = trim(Request::post('message'));
+
+        if ($receiverId && $message !== '') {
+            $db->insert(
+                "INSERT INTO expert_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)",
+                [$userId, $receiverId, $message]
+            );
+            $db->insert(
+                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Nouveau message', 'Vous avez reçu un nouveau message de votre expert.', '/dashboard/messagerie?partner_id=')",
+                [$receiverId, $userId]
+            );
+        }
+
+        Request::redirect('/expert/messagerie?partner_id=' . $receiverId);
+    }
+
+    public function updateAppointment($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $action = Request::post('action');
+
+        if (!in_array($action, ['confirmed', 'cancelled'])) {
+            Session::setFlash('error', 'Action invalide.');
+            Request::back();
+        }
+
+        $appt = $db->fetch("SELECT a.* FROM appointments a WHERE a.id = ? AND a.expert_id = ?", [$id, $userId]);
+        if (!$appt) {
+            Session::setFlash('error', 'Rendez-vous introuvable.');
+            Request::back();
+        }
+
+        $db->query("UPDATE appointments SET status = ? WHERE id = ?", [$action, $id]);
+
+        // Notify the mother
+        $mother = $db->fetch("SELECT m.user_id FROM appointments a JOIN mothers m ON a.mother_id = m.id WHERE a.id = ?", [$id]);
+        $actionLabel = $action === 'confirmed' ? 'confirmé' : 'annulé';
+        if ($mother) {
+            $db->insert(
+                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Rendez-vous {$actionLabel}', 'Votre rendez-vous a été {$actionLabel} par l\\'expert.', '/dashboard/rendez-vous')",
+                [$mother['user_id']]
+            );
+        }
+
+        $statusMsg = $action === 'confirmed' ? 'confirmé' : 'annulé';
+        Session::setFlash('success', "Rendez-vous {$statusMsg}.");
+        Request::back();
+    }
+
+    public function editArticle($id) {
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $article = $db->fetch("SELECT * FROM articles WHERE id = ? AND user_id = ?", [$id, $userId]);
+        if (!$article) {
+            Session::setFlash('error', 'Article introuvable.');
+            Request::redirect('/expert/articles');
+        }
+        $categories = $db->fetchAll("SELECT * FROM categories ORDER BY name ASC");
+        $this->render('expert/edit_article', compact('article', 'categories'));
+    }
+
+    public function updateArticle($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $article = $db->fetch("SELECT * FROM articles WHERE id = ? AND user_id = ?", [$id, $userId]);
+        if (!$article) {
+            Session::setFlash('error', 'Article introuvable.');
+            Request::back();
+        }
+
+        $title = trim(Request::post('title'));
+        $content = Request::post('content');
+        $categoryId = Request::post('category_id');
+        $status = Request::post('status', 'draft');
+        if (!in_array($status, ['draft', 'published'])) {
+            $status = 'draft';
+        }
+
+        $slug = $this->slugify($title);
+        $db->query(
+            "UPDATE articles SET title = ?, slug = ?, content = ?, category_id = ?, status = ? WHERE id = ? AND user_id = ?",
+            [$title, $slug, $content, $categoryId, $status, $id, $userId]
+        );
+        Session::setFlash('success', 'Article mis à jour.');
+        Request::back();
+    }
+
+    public function deleteArticle($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $db->query("DELETE FROM articles WHERE id = ? AND user_id = ?", [$id, $userId]);
+        Session::setFlash('success', 'Article supprimé.');
+        Request::back();
     }
 
     private function slugify($text) {

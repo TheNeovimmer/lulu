@@ -29,6 +29,10 @@ class AdminExpertController {
     public function validate($id) {
         $db = Database::getInstance();
         $db->query("UPDATE users u JOIN roles r ON u.role_id = r.id SET u.status = 'active' WHERE u.id = ? AND r.slug = 'expert'", [$id]);
+        $db->insert(
+            "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'success', 'Compte validé', 'Votre compte expert a été validé par l\\'administrateur. Vous pouvez maintenant publier des articles et répondre aux mamans.', '/expert/dashboard')",
+            [$id]
+        );
         Session::setFlash('success', 'Expert validé avec succès.');
         Request::redirect('/admin/experts');
     }

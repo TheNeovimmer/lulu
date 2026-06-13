@@ -35,9 +35,10 @@ class CttController extends Controller {
         $priority = Request::get('priority');
         $type = Request::get('type');
 
-        $sql = "SELECT t.*, u.name as user_name, u.email as user_email, assignee.name as assigned_name
+        $sql = "SELECT t.*, u.name as user_name, u.email as user_email, assignee.name as assigned_name, ru.slug as user_role_slug
                 FROM tickets t
                 LEFT JOIN users u ON t.user_id = u.id
+                LEFT JOIN roles ru ON u.role_id = ru.id
                 LEFT JOIN users assignee ON t.assigned_to = assignee.id
                 WHERE 1=1";
         $params = [];
@@ -49,6 +50,10 @@ class CttController extends Controller {
         if ($priority) {
             $sql .= " AND t.priority = ?";
             $params[] = $priority;
+        }
+        if ($type) {
+            $sql .= " AND ru.slug = ?";
+            $params[] = $type;
         }
         $sql .= " ORDER BY t.created_at DESC";
 
@@ -81,6 +86,10 @@ class CttController extends Controller {
         $expertId = Request::post('expert_id');
 
         $db->query("UPDATE tickets SET assigned_to = ?, status = 'in_progress', updated_at = NOW() WHERE id = ?", [$expertId, $id]);
+        $db->insert(
+            "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Ticket assigné', 'Un nouveau ticket vous a été assigné.', '/tickets/{$id}')",
+            [$expertId]
+        );
         Session::setFlash('success', 'Ticket assigné à l\'expert.');
         Request::back();
     }
@@ -133,10 +142,21 @@ class CttController extends Controller {
         $resolved = $db->fetch("SELECT COUNT(*) as count FROM tickets WHERE status = 'closed'")['count'];
         $agentsCount = $db->fetch("SELECT COUNT(DISTINCT u.id) as count FROM users u JOIN roles r ON u.role_id = r.id WHERE (r.slug = 'ctt' OR r.slug = 'expert')")['count'];
 
+        // Calculate average response time (minutes between ticket creation and first response)
+        $avgResponse = $db->fetch(
+            "SELECT AVG(TIMESTAMPDIFF(MINUTE, t.created_at, tm.created_at)) as avg_time
+             FROM tickets t
+             JOIN ticket_messages tm ON tm.ticket_id = t.id AND tm.id = (
+                 SELECT MIN(id) FROM ticket_messages WHERE ticket_id = t.id AND user_id != t.user_id
+             )
+             WHERE tm.id IS NOT NULL"
+        );
+        $avgResponseTime = $avgResponse && $avgResponse['avg_time'] ? round($avgResponse['avg_time']) . ' min' : 'N/A';
+
         $stats = [
             'total_tickets' => $totalTickets,
             'resolved' => $resolved,
-            'avg_response_time' => 'N/A',
+            'avg_response_time' => $avgResponseTime,
             'total_agents' => $agentsCount,
         ];
 
@@ -168,6 +188,13 @@ class CttController extends Controller {
         $message = trim(Request::post('message'));
         if ($message) {
             $db->query("INSERT INTO ticket_messages (ticket_id, user_id, message, created_at) VALUES (?, ?, ?, NOW())", [$id, Session::get('user_id'), $message]);
+            $ticket = $db->fetch("SELECT user_id FROM tickets WHERE id = ?", [$id]);
+            if ($ticket && $ticket['user_id'] != Session::get('user_id')) {
+                $db->insert(
+                    "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Réponse à votre ticket', 'Le CTT a répondu à votre ticket de support.', '/dashboard/tickets')",
+                    [$ticket['user_id']]
+                );
+            }
         }
         Session::setFlash('success', 'Réponse envoyée.');
         Request::back();

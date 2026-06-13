@@ -69,7 +69,23 @@ class AdminUserController {
         $db = Database::getInstance();
         \App\Core\Session::validate_csrf();
         $db->query("UPDATE users SET status = 'suspended' WHERE id = ?", [$id]);
+        $db->insert(
+            "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'warning', 'Compte suspendu', 'Votre compte a été suspendu par l\\'administrateur.', '/auth/login')",
+            [$id]
+        );
         Session::setFlash('success', 'Utilisateur suspendu.');
+        Request::redirect('/admin/utilisateurs');
+    }
+
+    public function activate($id) {
+        $db = Database::getInstance();
+        \App\Core\Session::validate_csrf();
+        $db->query("UPDATE users SET status = 'active' WHERE id = ?", [$id]);
+        $db->insert(
+            "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'success', 'Compte réactivé', 'Votre compte a été réactivé par l\\'administrateur.', '/auth/login')",
+            [$id]
+        );
+        Session::setFlash('success', 'Utilisateur réactivé.');
         Request::redirect('/admin/utilisateurs');
     }
 

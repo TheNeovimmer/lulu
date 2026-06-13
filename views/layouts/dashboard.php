@@ -76,5 +76,41 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/dashboard.js"></script>
+<script>
+// Notification badge via inline unread count check
+(function() {
+  const links = document.querySelectorAll('.sidebar-nav .nav-link');
+  let notifLinkIdx = -1;
+  let notifLabel = '';
+  const rolePaths = ['/dashboard/notifications', '/expert/notifications', '/ctt/notifications', '/admin/notifications'];
+  links.forEach((link, i) => {
+    const href = link.getAttribute('href');
+    if (href && rolePaths.includes(href)) {
+      notifLinkIdx = i;
+      notifLabel = href;
+    }
+  });
+  if (notifLabel) {
+    fetch(notifLabel)
+      .then(r => r.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const notifCountEl = doc.querySelector('[data-notif-count]');
+        if (notifCountEl) {
+          const count = parseInt(notifCountEl.dataset.notifCount);
+          if (count > 0) {
+            const span = document.createElement('span');
+            span.className = 'badge rounded-pill ms-auto';
+            span.style.cssText = 'background: var(--dprimary); font-size: 0.65rem;';
+            span.textContent = count;
+            links[notifLinkIdx].querySelector('span').after(span);
+          }
+        }
+      })
+      .catch(() => {});
+  }
+})();
+</script>
 </body>
 </html>

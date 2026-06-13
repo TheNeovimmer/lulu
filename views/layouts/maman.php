@@ -13,6 +13,7 @@ $sidebarLinks = [
   ['url' => '/blog', 'icon' => 'bi-journal-text', 'label' => 'Blog'],
   ['url' => '/ressources', 'icon' => 'bi-book', 'label' => 'Ressources'],
   ['url' => '/communaute', 'icon' => 'bi-chat-dots', 'label' => 'Communauté'],
+  ['url' => '/dashboard/temoignages', 'icon' => 'bi-star', 'label' => 'Témoignages'],
   ['url' => '/dashboard/tickets', 'icon' => 'bi-ticket', 'label' => 'Support'],
   ['url' => '/dashboard/notifications', 'icon' => 'bi-bell', 'label' => 'Notifications'],
   ['url' => '/dashboard/parametres', 'icon' => 'bi-gear', 'label' => 'Paramètres'],

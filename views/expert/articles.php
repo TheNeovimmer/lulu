@@ -69,8 +69,12 @@
                   <?php endif; ?>
                 </td>
                 <td class="actions-cell">
-                  <a href="/expert/articles/<?= $a['id'] ?>/edit" class="btn-icon"><i class="bi bi-pencil"></i></a>
-                  <a href="/blog/<?= $a['id'] ?>" class="btn-icon"><i class="bi bi-eye"></i></a>
+                  <a href="/expert/articles/edit/<?= $a['id'] ?>" class="btn-icon"><i class="bi bi-pencil"></i></a>
+                  <a href="/blog/<?= $a['slug'] ?>" class="btn-icon"><i class="bi bi-eye"></i></a>
+                  <form method="POST" action="/expert/articles/delete/<?= $a['id'] ?>" class="inline-form" onsubmit="return confirm('Supprimer cet article ?')">
+                    <?= \App\Core\Session::csrf_field() ?>
+                    <button type="submit" class="btn-icon danger"><i class="bi bi-trash"></i></button>
+                  </form>
                 </td>
               </tr>
               <?php endforeach; ?>

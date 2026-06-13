@@ -13,11 +13,13 @@
     $today = new \DateTime('today');
     foreach ($appointments as $a) {
         $evt = [
+            'id' => $a['id'],
             'title' => 'Consultation avec ' . ($a['mother_name'] ?? 'Maman'),
             'date' => date('Y-m-d', strtotime($a['appointment_date'])),
             'time' => date('H:i', strtotime($a['appointment_date'])),
             'status' => $a['status'],
             'type' => $a['type'],
+            'notes' => $a['notes'] ?? '',
         ];
         if (new \DateTime($evt['date']) < $today) {
             $past[] = $evt;
@@ -47,7 +49,24 @@
                     <span class="badge-dashboard <?= $e['status'] === 'confirmed' ? 'success' : ($e['status'] === 'cancelled' ? 'danger' : 'warning') ?> ms-2"><?= $e['status'] === 'confirmed' ? 'Confirmé' : ($e['status'] === 'cancelled' ? 'Annulé' : 'En attente') ?></span>
                     <span class="badge-dashboard info ms-1"><?= $e['type'] === 'online' ? 'En ligne' : 'Cabinet' ?></span>
                   </p>
+                  <?php if ($e['notes']): ?>
+                  <small style="color: var(--dtext-muted);"><?= htmlspecialchars($e['notes']) ?></small>
+                  <?php endif; ?>
                 </div>
+                <?php if ($e['status'] === 'pending'): ?>
+                <div class="d-flex gap-1">
+                  <form method="POST" action="/expert/appointments/update/<?= $e['id'] ?>">
+                    <?= \App\Core\Session::csrf_field() ?>
+                    <input type="hidden" name="action" value="confirmed">
+                    <button type="submit" class="btn btn-sm btn-dashboard btn-dashboard-primary" title="Confirmer"><i class="bi bi-check-lg"></i></button>
+                  </form>
+                  <form method="POST" action="/expert/appointments/update/<?= $e['id'] ?>" onsubmit="return confirm('Annuler ce rendez-vous ?')">
+                    <?= \App\Core\Session::csrf_field() ?>
+                    <input type="hidden" name="action" value="cancelled">
+                    <button type="submit" class="btn btn-sm btn-dashboard btn-dashboard-danger" title="Annuler"><i class="bi bi-x-lg"></i></button>
+                  </form>
+                </div>
+                <?php endif; ?>
               </div>
             <?php endforeach; ?>
           </div>
