@@ -83,7 +83,8 @@ class ExpertController extends Controller {
                 [$q['id']]
             );
             foreach ($q['answers'] as &$a) {
-                $a['is_expert'] = $db->fetchColumn("SELECT slug FROM roles WHERE id = ?", [$a['role_id']]) === 'expert';
+                $role = $db->fetch("SELECT slug FROM roles WHERE id = ?", [$a['role_id']]);
+                $a['is_expert'] = $role && $role['slug'] === 'expert';
             }
         }
         $this->render('expert/questions', compact('questions'));
@@ -366,8 +367,8 @@ class ExpertController extends Controller {
                 [$userId, $receiverId, $message]
             );
             $db->insert(
-                "INSERT INTO notifications (user_id, type, title, message, link) VALUES (?, 'info', 'Nouveau message', 'Vous avez reçu un nouveau message de votre expert.', '/dashboard/messagerie?partner_id=')",
-                [$receiverId, $userId]
+                "INSERT INTO notifications (user_id, type, title, message, link, created_at) VALUES (?, 'info', 'Nouveau message', 'Vous avez reçu un nouveau message de votre expert.', ?, NOW())",
+                [$receiverId, '/dashboard/messagerie?partner_id=' . $userId]
             );
         }
 
@@ -453,6 +454,63 @@ class ExpertController extends Controller {
         $userId = Session::get('user_id');
         $db->query("DELETE FROM articles WHERE id = ? AND user_id = ?", [$id, $userId]);
         Session::setFlash('success', 'Article supprimé.');
+        Request::back();
+    }
+
+    public function editResource($id) {
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $resource = $db->fetch("SELECT * FROM resources WHERE id = ? AND user_id = ?", [$id, $userId]);
+        if (!$resource) {
+            Session::setFlash('error', 'Ressource introuvable.');
+            Request::redirect('/expert/ressources');
+        }
+        $categories = $db->fetchAll("SELECT * FROM categories ORDER BY name ASC");
+        $this->render('expert/edit_resource', compact('resource', 'categories'));
+    }
+
+    public function updateResource($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $resource = $db->fetch("SELECT * FROM resources WHERE id = ? AND user_id = ?", [$id, $userId]);
+        if (!$resource) {
+            Session::setFlash('error', 'Ressource introuvable.');
+            Request::back();
+        }
+
+        $title = trim(Request::post('title'));
+        $description = Request::post('description');
+        $type = Request::post('type', 'guide');
+        $categoryId = Request::post('category_id');
+
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        $slug = $slug ?: 'resource-' . time();
+
+        $fileUrl = $resource['file_url'];
+        $uploadDir = __DIR__ . '/../../public/uploads/ressources/';
+        if (!empty($_FILES['file_url']['name'])) {
+            $ext = pathinfo($_FILES['file_url']['name'], PATHINFO_EXTENSION);
+            $filename = $slug . '-' . time() . '.' . $ext;
+            if (move_uploaded_file($_FILES['file_url']['tmp_name'], $uploadDir . $filename)) {
+                $fileUrl = '/uploads/ressources/' . $filename;
+            }
+        }
+
+        $db->query(
+            "UPDATE resources SET title = ?, slug = ?, description = ?, type = ?, file_url = ?, category_id = ? WHERE id = ? AND user_id = ?",
+            [$title, $slug, $description, $type, $fileUrl, $categoryId, $id, $userId]
+        );
+        Session::setFlash('success', 'Ressource mise à jour.');
+        Request::back();
+    }
+
+    public function deleteResource($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $db->query("DELETE FROM resources WHERE id = ? AND user_id = ?", [$id, $userId]);
+        Session::setFlash('success', 'Ressource supprimée.');
         Request::back();
     }
 

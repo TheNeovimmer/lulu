@@ -5,6 +5,7 @@ $sidebarLinks = [
   ['url' => '/admin/articles', 'icon' => 'bi-file-text', 'label' => 'Articles'],
   ['url' => '/admin/categories', 'icon' => 'bi-tags', 'label' => 'Catégories'],
   ['url' => '/admin/utilisateurs', 'icon' => 'bi-people', 'label' => 'Utilisateurs'],
+  ['url' => '/admin/mamans', 'icon' => 'bi-heart', 'label' => 'Mamans'],
   ['url' => '/admin/ressources', 'icon' => 'bi-book', 'label' => 'Ressources'],
   ['url' => '/admin/communaute', 'icon' => 'bi-chat-dots', 'label' => 'Communauté'],
   ['url' => '/admin/tickets', 'icon' => 'bi-ticket', 'label' => 'Tickets'],

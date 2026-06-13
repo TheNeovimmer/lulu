@@ -41,4 +41,10 @@ class Database {
     public function fetch($sql, $params = []) { return $this->query($sql, $params)->fetch(); }
     public function fetchAll($sql, $params = []) { return $this->query($sql, $params)->fetchAll(); }
     public function insert($sql, $params = []) { $this->query($sql, $params); return $this->pdo->lastInsertId(); }
+
+    public function fetchColumn($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        $row = $stmt->fetch(\PDO::FETCH_NUM);
+        return $row ? $row[0] : null;
+    }
 }

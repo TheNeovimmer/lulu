@@ -205,6 +205,7 @@ CREATE TABLE resources (
 CREATE TABLE community_posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     image VARCHAR(255) DEFAULT NULL,
     likes_count INT DEFAULT 0,

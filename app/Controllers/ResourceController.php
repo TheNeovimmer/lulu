@@ -44,6 +44,7 @@ class ResourceController extends Controller {
             $this->render('errors/404');
             return;
         }
+        $db->query("UPDATE resources SET downloads_count = downloads_count + 1 WHERE id = ?", [$resource['id']]);
         $this->render('pages/ressources', compact('resource'));
     }
 }

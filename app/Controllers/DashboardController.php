@@ -182,6 +182,16 @@ class DashboardController extends Controller {
 
     public function updateGrossesse() { return $this->grossesse(); }
 
+    public function completePregnancy() {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $motherId = $this->getMotherId($userId);
+        $db->query("UPDATE pregnancies SET status = 'completed' WHERE mother_id = ? AND status = 'active'", [$motherId]);
+        Session::setFlash('success', 'Grossesse marquée comme terminée.');
+        Request::back();
+    }
+
     public function bebe() {
         $db = Database::getInstance();
         $userId = Session::get('user_id');
@@ -198,13 +208,13 @@ class DashboardController extends Controller {
             if ($existing) {
                 $babyId = $existing['id'];
                 $db->query(
-                    "UPDATE babies SET name = ?, date_of_birth = ?, gender = ? WHERE id = ?",
-                    [$name, $birthDate, $gender, $babyId]
+                    "UPDATE babies SET name = ?, date_of_birth = ?, gender = ?, blood_type = ?, notes = ? WHERE id = ?",
+                    [$name, $birthDate, $gender, Request::post('blood_type') ?: null, Request::post('notes') ?: null, $babyId]
                 );
             } else {
                 $babyId = $db->insert(
-                    "INSERT INTO babies (mother_id, name, date_of_birth, gender) VALUES (?, ?, ?, ?)",
-                    [$motherId, $name, $birthDate, $gender]
+                    "INSERT INTO babies (mother_id, name, date_of_birth, gender, blood_type, notes) VALUES (?, ?, ?, ?, ?, ?)",
+                    [$motherId, $name, $birthDate, $gender, Request::post('blood_type') ?: null, Request::post('notes') ?: null]
                 );
             }
 
@@ -266,6 +276,24 @@ class DashboardController extends Controller {
         Request::back();
     }
 
+    public function updateMemory($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $motherId = $this->getMotherId($userId);
+        $baby = $db->fetch("SELECT id FROM babies WHERE mother_id = ?", [$motherId]);
+        if (!$baby) { Request::back(); }
+        $title = trim(Request::post('title'));
+        $content = trim(Request::post('content'));
+        $date = Request::post('event_date') ?: date('Y-m-d');
+        $db->query(
+            "UPDATE baby_memories SET title = ?, content = ?, event_date = ? WHERE id = ? AND baby_id = ?",
+            [$title, $content, $date, $id, $baby['id']]
+        );
+        Session::setFlash('success', 'Souvenir mis à jour.');
+        Request::back();
+    }
+
     public function deleteMemory($id) {
         $db = Database::getInstance();
         $userId = Session::get('user_id');
@@ -293,16 +321,22 @@ class DashboardController extends Controller {
         $milestones = Request::post('milestones') ?: [];
         
         // Remove existing milestone records
-        $db->query("DELETE FROM baby_milestones WHERE baby_id = ?", [$baby['id']]);
-
-        // Insert new selected milestones
-        foreach ($milestones as $key => $achieved) {
-            if ($achieved) {
-                $db->insert(
-                    "INSERT INTO baby_milestones (baby_id, milestone_key, achieved_date) VALUES (?, ?, ?)",
-                    [$baby['id'], $key, date('Y-m-d')]
-                );
+        $db->getConnection()->beginTransaction();
+        try {
+            $db->query("DELETE FROM baby_milestones WHERE baby_id = ?", [$baby['id']]);
+            foreach ($milestones as $key => $achieved) {
+                if ($achieved) {
+                    $db->insert(
+                        "INSERT INTO baby_milestones (baby_id, milestone_key, achieved_date) VALUES (?, ?, ?)",
+                        [$baby['id'], $key, date('Y-m-d')]
+                    );
+                }
             }
+            $db->getConnection()->commit();
+        } catch (\Exception $e) {
+            $db->getConnection()->rollBack();
+            Session::setFlash('error', 'Erreur lors de la mise à jour des étapes.');
+            Request::back();
         }
 
         Session::setFlash('success', 'Étapes de développement mises à jour.');
@@ -351,6 +385,19 @@ class DashboardController extends Controller {
         Request::back();
     }
 
+    public function deleteCroissance($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $motherId = $this->getMotherId($userId);
+        $baby = $db->fetch("SELECT id FROM babies WHERE mother_id = ?", [$motherId]);
+        if ($baby) {
+            $db->query("DELETE FROM growth_records WHERE id = ? AND baby_id = ?", [$id, $baby['id']]);
+            Session::setFlash('success', 'Mesure supprimée.');
+        }
+        Request::back();
+    }
+
     public function vaccination() {
         $db = Database::getInstance();
         $userId = Session::get('user_id');
@@ -394,6 +441,19 @@ class DashboardController extends Controller {
             ]
         );
         Session::setFlash('success', 'Vaccin enregistré.');
+        Request::back();
+    }
+
+    public function deleteVaccination($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $motherId = $this->getMotherId($userId);
+        $baby = $db->fetch("SELECT id FROM babies WHERE mother_id = ?", [$motherId]);
+        if ($baby) {
+            $db->query("DELETE FROM vaccinations WHERE id = ? AND baby_id = ?", [$id, $baby['id']]);
+            Session::setFlash('success', 'Vaccin supprimé.');
+        }
         Request::back();
     }
 

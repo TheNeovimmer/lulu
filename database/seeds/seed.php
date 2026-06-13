@@ -203,13 +203,13 @@ if ($existing['c'] == 0) {
     $user = $db->fetch("SELECT id FROM users WHERE id > 1 LIMIT 1");
     if ($user) {
         $posts = [
-            ['Bonjour à toutes ! Je suis nouvelle sur la plateforme et ravie de rejoindre cette communauté.', 'published'],
-            ['Qui a déjà testé le cours de préparation à l\'accouchement ? Des recommandations ?', 'published'],
-            ['Mon bébé ne dort pas la nuit, des conseils ?', 'published'],
+            ['Bienvenue sur LUMA', 'Bonjour à toutes ! Je suis nouvelle sur la plateforme et ravie de rejoindre cette communauté.', 'published'],
+            ['Cours de préparation à l\'accouchement', 'Qui a déjà testé le cours de préparation à l\'accouchement ? Des recommandations ?', 'published'],
+            ['Bébé ne dort pas la nuit', 'Mon bébé ne dort pas la nuit, des conseils ?', 'published'],
         ];
         foreach ($posts as $p) {
-            $db->insert("INSERT INTO community_posts (user_id, content, status, created_at) VALUES (?, ?, ?, NOW())",
-                [$user['id'], $p[0], $p[1]]);
+            $db->insert("INSERT INTO community_posts (user_id, title, content, status, created_at) VALUES (?, ?, ?, ?, NOW())",
+                [$user['id'], $p[0], $p[1], $p[2]]);
         }
         echo "  community_posts ✓\n";
     }

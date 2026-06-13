@@ -33,6 +33,7 @@
           <td class="td-muted"><?= htmlspecialchars($maman['due_date']) ?></td>
           <td><span class="badge-dashboard info"><?= htmlspecialchars($maman['weeks_gestation']) ?> sem.</span></td>
           <td class="actions-cell">
+            <a href="/admin/mamans/<?= $maman['id'] ?>" class="btn-icon"><i class="bi bi-eye"></i></a>
             <a href="/admin/users/edit/<?= $maman['id'] ?>" class="btn-icon"><i class="bi bi-pencil"></i></a>
             <button type="button" class="btn-icon danger" data-bs-toggle="modal" data-bs-target="#deleteMamanModal<?= $maman['id'] ?>"><i class="bi bi-trash"></i></button>
           </td>

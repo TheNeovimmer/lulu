@@ -65,6 +65,11 @@
                 <td><?= date('d/m/Y', strtotime($r['created_at'])) ?></td>
                 <td class="actions-cell">
                   <a href="<?= htmlspecialchars($r['file_url'] ?? '') ?>" class="btn-icon" target="_blank"><i class="bi bi-download"></i></a>
+                  <a href="/expert/ressources/edit/<?= $r['id'] ?>" class="btn-icon"><i class="bi bi-pencil"></i></a>
+                  <form action="/expert/ressources/delete/<?= $r['id'] ?>" method="post" class="inline-form" style="display:inline">
+                    <?= \App\Core\Session::csrf_field() ?>
+                    <button type="submit" class="btn-icon danger" style="border:none;background:none"><i class="bi bi-trash"></i></button>
+                  </form>
                 </td>
               </tr>
               <?php endforeach; ?>

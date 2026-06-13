@@ -30,6 +30,7 @@ class ArticleController {
         if (!$article) { View::render('errors/404', [], 'front'); return; }
 
         $db = Database::getInstance();
+        $db->query("UPDATE articles SET views_count = views_count + 1 WHERE id = ?", [$article['id']]);
         $comments = $db->fetchAll(
             "SELECT c.*, u.name as user_name FROM comments c LEFT JOIN users u ON c.user_id = u.id WHERE c.article_id = ? AND c.status = 'approved' ORDER BY c.created_at DESC",
             [$article['id']]

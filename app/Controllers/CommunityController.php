@@ -16,13 +16,14 @@ class CommunityController extends Controller {
         $limit = 10;
         $offset = ($page - 1) * $limit;
 
-        $total = $db->fetch("SELECT COUNT(*) as count FROM community_posts")['count'];
+        $total = $db->fetch("SELECT COUNT(*) as count FROM community_posts WHERE status = 'published'")['count'];
         $posts = $db->fetchAll(
             "SELECT cp.*, u.name as author_name, u.avatar as author_avatar,
                     (SELECT COUNT(*) FROM community_likes WHERE post_id = cp.id) as likes_count,
                     (SELECT COUNT(*) FROM community_comments WHERE post_id = cp.id) as comments_count
              FROM community_posts cp
              LEFT JOIN users u ON cp.user_id = u.id
+             WHERE cp.status = 'published'
              ORDER BY cp.created_at DESC
              LIMIT ? OFFSET ?",
             [$limit, $offset]
@@ -118,11 +119,13 @@ class CommunityController extends Controller {
 
         if ($existing) {
             $db->query("DELETE FROM community_likes WHERE id = ?", [$existing['id']]);
+            $liked = false;
         } else {
             $db->insert("INSERT INTO community_likes (post_id, user_id, created_at) VALUES (?, ?, NOW())", [$id, $userId]);
+            $liked = true;
         }
 
-        $liked = !$existing;
+        $db->query("UPDATE community_posts SET likes_count = (SELECT COUNT(*) FROM community_likes WHERE post_id = ?) WHERE id = ?", [$id, $id]);
         $count = $db->fetch("SELECT COUNT(*) as count FROM community_likes WHERE post_id = ?", [$id])['count'];
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
@@ -132,5 +135,17 @@ class CommunityController extends Controller {
         }
 
         Request::back();
+    }
+
+    public function deleteComment($id) {
+        if (!Request::isPost()) { Request::back(); }
+        $db = Database::getInstance();
+        $userId = Session::get('user_id');
+        $comment = $db->fetch("SELECT user_id, post_id FROM community_comments WHERE id = ?", [$id]);
+        if ($comment && $comment['user_id'] == $userId) {
+            $db->query("DELETE FROM community_comments WHERE id = ?", [$id]);
+            Session::setFlash('success', 'Commentaire supprimé.');
+        }
+        Request::redirect('/communaute/' . $comment['post_id']);
     }
 }
