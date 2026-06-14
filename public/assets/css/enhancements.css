@@ -2201,6 +2201,19 @@ select.form-control-luma option {
   font-weight: 400;
   color: #f0a0bb;
 }
+.blog-card-excerpt {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+.blog-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
 /* Pagination */
 .blog-pagination {

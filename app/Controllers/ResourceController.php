@@ -17,7 +17,8 @@ class ResourceController extends Controller {
     public function index() {
         $resources = $this->resourceRepo->findPublished();
         $categories = $this->categoryRepo->findAllOrdered();
-        $this->render('pages/ressources', compact('resources', 'categories'));
+        $popular = $this->resourceRepo->findPopular();
+        $this->render('pages/ressources', compact('resources', 'categories', 'popular'));
     }
 
     public function show($slug) {

@@ -10,7 +10,7 @@
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
           <li class="nav-item"><a class="nav-link" href="/">Accueil</a></li>
-          <li class="nav-item"><a class="nav-link" href="/blog">Conseils</a></li>
+          <li class="nav-item"><a class="nav-link" href="/ressources">Conseils</a></li>
           <li class="nav-item"><a class="nav-link" href="/communaute">Communauté</a></li>
           <li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="/a-propos">A propos</a></li>

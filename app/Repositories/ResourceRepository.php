@@ -33,6 +33,18 @@ class ResourceRepository extends BaseRepository {
         );
     }
 
+    public function findPopular(int $limit = 4): array {
+        return $this->raw(
+            "SELECT r.*, c.name as category_name
+             FROM resources r
+             LEFT JOIN categories c ON r.category_id = c.id
+             WHERE r.status = 'published'
+             ORDER BY r.downloads_count DESC, r.created_at DESC
+             LIMIT ?",
+            [$limit]
+        );
+    }
+
     public function incrementDownloads(int $id): void {
         $this->execute("UPDATE resources SET downloads_count = downloads_count + 1 WHERE id = ?", [$id]);
     }
