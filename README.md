@@ -9,6 +9,7 @@ Application MVC PHP sans framework, construite sur un routeur maison avec archit
 ```
 luma/
 ├── app/
+│   ├── autoload.php     # Autoloader PSR-4 natif (aucune dépendance)
 │   ├── Controllers/     # Contrôleurs (Admin, Expert, CTT, Maman)
 │   ├── Core/            # Framework : Router, Database, View, Request, Session
 │   ├── Helpers/         # Utilitaires (Avatar)
@@ -39,7 +40,7 @@ luma/
 
 ## Prérequis
 
-- PHP 8.3+
+- PHP 8.1+ (aucune dépendance externe — Composer supprimé)
 - MySQL 8
 - Serveur web (Apache/Nginx)
 - Extension PDO MySQL

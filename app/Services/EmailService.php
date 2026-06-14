@@ -64,6 +64,7 @@ HTML;
 
     public function sendAppointmentBooked(int $expertId, string $motherName, string $date, string $type): void {
         $typeLabel = $type === 'online' ? 'Téléconsultation' : 'Consultation en cabinet';
+        $baseUrl = BASE_URL;
         $body = <<<BODY
 <p style="font-size:15px;color:#374151;margin:0 0 16px">Bonjour,</p>
 <p style="font-size:14px;color:#374151;margin:0 0 16px;line-height:1.6">
@@ -80,7 +81,7 @@ Vous avez reçu une nouvelle demande de consultation de la part de <strong>{$mot
 <p style="font-size:14px;color:#374151;margin:0 0 16px;line-height:1.6">
 Connectez-vous à votre espace expert pour confirmer ou annuler ce rendez-vous.
 </p>
-<a href="https://luma.ddev.site/expert/agenda" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir mon agenda</a>
+<a href="{$baseUrl}/expert/agenda" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir mon agenda</a>
 BODY;
         $this->sendToUser($expertId, 'Nouvelle demande de consultation', $body);
     }
@@ -100,6 +101,7 @@ BODY;
     }
 
     public function sendTicketAssigned(int $expertId, int $ticketId, string $subject): void {
+        $baseUrl = BASE_URL;
         $body = <<<BODY
 <p style="font-size:15px;color:#374151;margin:0 0 16px">Bonjour,</p>
 <p style="font-size:14px;color:#374151;margin:0 0 16px;line-height:1.6">
@@ -111,29 +113,31 @@ Un nouveau ticket de support vous a été assigné :
 <p style="margin:0;font-size:15px;color:#111827;font-weight:600">{$subject}</p>
 </td></tr>
 </table>
-<a href="https://luma.ddev.site/tickets/{$ticketId}" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir le ticket</a>
+<a href="{$baseUrl}/tickets/{$ticketId}" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir le ticket</a>
 BODY;
         $this->sendToUser($expertId, 'Nouveau ticket assigné', $body);
     }
 
     public function sendTicketReplied(int $creatorId, int $ticketId): void {
+        $baseUrl = BASE_URL;
         $body = <<<BODY
 <p style="font-size:15px;color:#374151;margin:0 0 16px">Bonjour,</p>
 <p style="font-size:14px;color:#374151;margin:0 0 16px;line-height:1.6">
 Une réponse a été apportée à votre ticket de support.
 </p>
-<a href="https://luma.ddev.site/dashboard/tickets" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir la réponse</a>
+<a href="{$baseUrl}/dashboard/tickets" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir la réponse</a>
 BODY;
         $this->sendToUser($creatorId, 'Réponse à votre ticket', $body);
     }
 
     public function sendTicketClosed(int $creatorId, int $ticketId): void {
+        $baseUrl = BASE_URL;
         $body = <<<BODY
 <p style="font-size:15px;color:#374151;margin:0 0 16px">Bonjour,</p>
 <p style="font-size:14px;color:#374151;margin:0 0 16px;line-height:1.6">
 Votre ticket de support a été fermé. Si vous avez besoin d'aide supplémentaire, n'hésitez pas à créer un nouveau ticket.
 </p>
-<a href="https://luma.ddev.site/dashboard/tickets" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir mes tickets</a>
+<a href="{$baseUrl}/dashboard/tickets" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Voir mes tickets</a>
 BODY;
         $this->sendToUser($creatorId, 'Ticket fermé', $body);
     }
@@ -152,6 +156,7 @@ BODY;
     }
 
     public function sendExpertValidated(int $expertId, string $expertName): void {
+        $baseUrl = BASE_URL;
         $body = <<<BODY
 <p style="font-size:15px;color:#374151;margin:0 0 16px">Bonjour {$expertName},</p>
 <p style="font-size:14px;color:#374151;margin:0 0 16px;line-height:1.6">
@@ -162,7 +167,7 @@ Votre compte expert a été validé par l'administrateur. Vous pouvez dès maint
 <li>Répondre aux questions des mamans</li>
 <li>Partager des ressources</li>
 </ul>
-<a href="https://luma.ddev.site/expert/dashboard" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Accéder à mon espace</a>
+<a href="{$baseUrl}/expert/dashboard" style="display:inline-block;padding:12px 24px;background:#c94b72;color:#fff;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600">Accéder à mon espace</a>
 BODY;
         $this->sendToUser($expertId, 'Compte validé', $body);
     }
