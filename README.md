@@ -15,8 +15,8 @@ luma/
 │   ├── Middleware/      # Auth, Role, Permission middleware
 │   └── Repositories/    # Data access layer
 ├── database/
-│   └── seeds/           # Seed scripts (29 tables)
-├── migrations/          # Schéma SQL complet
+│   └── seeds/           # Seed scripts (31 tables)
+├── migrations/          # Migrations SQL incrémentales
 ├── public/
 │   ├── assets/
 │   │   ├── css/         # Styles (dashboard, animations, responsive)
@@ -32,6 +32,7 @@ luma/
 │   ├── layouts/         # Layouts (admin, expert, maman, ctt, front)
 │   ├── pages/           # Pages publiques
 │   └── partials/        # Partiels réutilisables
+├── database.sql         # Schéma + seed complet (import unique)
 ├── routes.php           # Définition des routes
 └── env.php              # Configuration (DB, URL)
 ```
@@ -78,28 +79,29 @@ luma/
 4. Cliquer sur **Créer**
 5. La base de données est créée mais vide — on va la remplir à l'étape suivante
 
-### Étape 5 — Importer le schéma de la base de données
+### Étape 5 — Importer la base de données (schéma + données)
+
+Le fichier `database.sql` à la racine du projet contient à la fois le schéma (31 tables) et les données de démonstration.
 
 **Via phpMyAdmin :**
 
 1. Sélectionner la base `luma` dans le menu de gauche
 2. Cliquer sur l'onglet **Importer**
-3. Cliquer **Choisir un fichier** et sélectionner `C:\laragon\www\luma\migrations\v2_create_tables.sql`
+3. Cliquer **Choisir un fichier** et sélectionner `C:\laragon\www\luma\database.sql`
 4. Cliquer sur **Exécuter** en bas de page
-5. Vérifier qu'aucune erreur ne s'affiche
+5. Vérifier qu'aucune erreur ne s'affiche (31 tables créées, données insérées)
 
 **Ou via le terminal Laragon :**
 
 1. Cliquer sur **Menu** → **Terminal** dans Laragon
 2. Exécuter :
    ```bash
-   mysql -u root luma < C:\laragon\www\luma\migrations\v2_create_tables.sql
+   mysql -u root luma < C:\laragon\www\luma\database.sql
    ```
 
 ### Étape 6 — Configurer l'environnement
 
-1. Ouvrir le fichier `C:\laragon\www\luma\env.example.php`
-2. Modifier les valeurs pour correspondre à Laragon :
+1. Depuis la racine du projet (`C:\laragon\www\luma\`), copier `env.php` ou créer le fichier avec :
    ```php
    <?php
    define('DB_HOST', 'localhost');
@@ -108,29 +110,8 @@ luma/
    define('DB_PASS', '');          // Laragon : pas de mot de passe par défaut
    define('BASE_URL', 'http://localhost/luma/public');
    ```
-3. Sauvegarder ce fichier sous le nom `env.php` dans le même dossier
 
-### Étape 7 — Seeder la base de données
-
-Ouvrir le terminal Laragon (**Menu** → **Terminal**) et exécuter :
-
-```bash
-cd C:\laragon\www\luma
-php database/seeds/seed.php
-```
-
-Vous devriez voir les messages de confirmation :
-```
-  users ✓
-  roles ✓
-  permissions ✓
-  categories ✓
-  articles ✓
-  resources ✓
-  ...
-```
-
-### Étape 8 — Configurer Apache (Virtual Host)
+### Étape 7 — Configurer Apache (Virtual Host)
 
 **Option A — Via Laragon (recommandé) :**
 
@@ -152,7 +133,7 @@ Vous devriez voir les messages de confirmation :
 
 Laragon redirige automatiquement vers `http://localhost/luma/public` si le dossier contient un `public/`. Vérifier que le `.htaccess` dans `public/` est bien actif (il contient déjà les règles de réécriture).
 
-### Étape 9 — Accéder au site
+### Étape 8 — Accéder au site
 
 1. Ouvrir le navigateur et aller sur :
    ```
@@ -164,21 +145,14 @@ Laragon redirige automatiquement vers `http://localhost/luma/public` si le dossi
    ```
 2. La page d'accueil de LUMA s'affiche
 
-### Étape 10 — Connexion aux comptes de test
+### Étape 9 — Connexion aux comptes de test
 
 | Rôle    | Email             | Mot de passe |
 |---------|-------------------|--------------|
 | Admin   | admin@luma.tn     | password     |
-| Maman   | maman@test.tn     | password     |
-| Expert  | expert@test.tn    | password     |
+| Expert  | expert@luma.tn    | password     |
+| Maman   | maman@luma.tn     | password     |
 | CTT     | ctt@luma.tn       | password     |
-
-## Installation avec DDEV (alternative)
-
-```bash
-ddev start
-ddev exec php database/seeds/seed.php
-```
 
 ## Fonctionnalités
 
@@ -219,7 +193,7 @@ ddev exec php database/seeds/seed.php
 
 ## Base de données
 
-29 tables couvrant :
+31 tables couvrant :
 - Utilisateurs et rôles (RBAC avec permissions)
 - Profils maman, bébé, grossesse
 - Croissance, vaccins, étapes clés
