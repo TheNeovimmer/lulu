@@ -27,7 +27,8 @@ class ArticleController extends Controller {
         $articles = $result['items'];
         $total = $result['total'];
         $limit = $result['limit'];
-        $this->render('pages/blog', compact('articles', 'categories', 'category', 'total', 'limit', 'page'));
+        $popular = $this->articleRepo->getPopular(4);
+        $this->render('pages/blog', compact('articles', 'categories', 'category', 'total', 'limit', 'page', 'popular'));
     }
 
     public function show($slug) {

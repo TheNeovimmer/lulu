@@ -21,16 +21,16 @@
 
   <div class="divider-accent"></div>
 
-  <h5 class="font-heading mb-3">Commentaires (<?= count($comments) ?>)</h5>
+  <h5 class="font-heading mb-3">Commentaires (<?= count($answers ?? []) ?>)</h5>
 
-  <?php if (!empty($comments)): ?>
+  <?php if (!empty($answers)): ?>
     <div class="animate-stagger">
-    <?php foreach ($comments as $c): ?>
+    <?php foreach ($answers as $c): ?>
     <div class="card-luma p-3 mb-3 <?= !empty($c['is_expert']) ? 'border-pink' : '' ?>" data-animate="fade-up">
       <div class="d-flex align-items-start gap-2">
         <div class="flex-grow-1">
           <strong class="<?= !empty($c['is_expert']) ? 'text-light-pink' : 'text-white' ?>">
-            <?= htmlspecialchars($c['user_name']) ?>
+            <?= htmlspecialchars($c['author_name'] ?? 'Anonyme') ?>
             <?php if (!empty($c['is_expert'])): ?>
               <span class="badge bg-pink ms-1">Experte</span>
             <?php endif; ?>

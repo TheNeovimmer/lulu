@@ -50,6 +50,10 @@ class CommunityService {
     public function getPostWithDetails(int $id): ?array {
         $post = $this->postRepo->findWithDetails($id);
         if (!$post) return null;
+        $userId = \App\Core\Session::get('user_id');
+        $post['is_expert'] = false;
+        $post['user_liked'] = $userId ? $this->postRepo->hasLiked($id, $userId) : false;
+        $post['likes_count'] = $post['likes_count'] ?? $this->postRepo->getLikeCount($id);
         $answers = $this->postRepo->findAnswers($id);
         foreach ($answers as &$a) {
             $a['is_expert'] = ($a['role_slug'] ?? '') === 'expert';

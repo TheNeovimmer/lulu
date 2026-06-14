@@ -1,9 +1,11 @@
 <?php
 namespace App\Controllers;
 
+use App\Core\Database;
 use App\Core\Request;
 use App\Core\Session;
 use App\Core\Validator;
+use App\Repositories\TestimonialRepository;
 use App\Services\CommunityService;
 
 class CommunityController extends Controller {
@@ -17,7 +19,23 @@ class CommunityController extends Controller {
     public function index() {
         $posts = $this->communityService->getPublishedPosts();
         $totalPages = 1;
-        $this->render('pages/communaute', compact('posts', 'totalPages'));
+
+        $db = Database::getInstance();
+        $testimonialRepo = new TestimonialRepository();
+        $testimonials = $testimonialRepo->findApproved();
+        $mamansCount = $db->fetch("SELECT COUNT(*) as count FROM users")['count'] ?? 0;
+        $postsCount = $db->fetch("SELECT COUNT(*) as count FROM community_posts WHERE status = 'published'")['count'] ?? 0;
+
+        $themes = [
+            ['name' => 'Grossesse', 'icon' => 'bi-emoji-heart-eyes', 'desc' => 'Suivi, symptômes, alimentation', 'members' => '12k+'],
+            ['name' => 'Bébé', 'icon' => 'bi-heart', 'desc' => 'Soins, éveil, alimentation', 'members' => '15k+'],
+            ['name' => 'Parentalité', 'icon' => 'bi-people', 'desc' => 'Éducation, organisation, vie de famille', 'members' => '10k+'],
+            ['name' => 'Bien-être & Santé', 'icon' => 'bi-flower2', 'desc' => 'Santé mentale, forme, nutrition', 'members' => '8k+'],
+        ];
+
+        $sujets = ['Grossesse', 'Accouchement', 'Allaitement', 'Sommeil bébé', 'Soutien moral', 'Retour à la maison', 'Alimentation'];
+
+        $this->render('pages/communaute', compact('posts', 'totalPages', 'testimonials', 'mamansCount', 'postsCount', 'themes', 'sujets'));
     }
 
     public function show($id) {
