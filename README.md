@@ -47,6 +47,34 @@ luma/
 
 ## Installation sur Laragon (Windows)
 
+**TL;DR — Résumé des étapes :**
+
+1. Installer Laragon → `C:\laragon`
+2. Copier le projet → `C:\laragon\www\luma\`
+3. Démarrer Apache + MySQL (bouton **Start All**)
+4. Créer la DB → `http://localhost/phpmyadmin` → nouvelle base `luma`
+5. Importer → sélectionner `luma`, onglet **Importer**, choisir `database.sql`, **Exécuter**
+6. Configurer `env.php` à la racine du projet :
+   ```php
+   <?php
+   define('DB_HOST', 'localhost');
+   define('DB_NAME', 'luma');
+   define('DB_USER', 'root');
+   define('DB_PASS', '');          // Laragon : pas de mot de passe
+   define('BASE_URL', 'http://localhost/luma/public');
+   ```
+7. Accéder à `http://localhost/luma/public`
+
+**Comptes de test (mot de passe : `password`) :**
+| Rôle    | Email          |
+|---------|----------------|
+| Admin   | admin@luma.tn  |
+| Expert  | expert@luma.tn |
+| Maman   | maman@luma.tn  |
+| CTT     | ctt@luma.tn    |
+
+---
+
 ### Étape 1 — Télécharger et installer Laragon
 
 1. Télécharger Laragon sur <https://laragon.org/download/>
