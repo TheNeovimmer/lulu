@@ -1,0 +1,34 @@
+<nav class="navbar navbar-expand-lg" style="position:absolute; top:0; left:0; right:0; z-index:1030; background:transparent; padding-top:0;">
+  <div class="container">
+    <div class="nav-pill-luma d-flex align-items-center w-100">
+      <a class="navbar-brand fw-bold me-4" href="/" style="line-height:1;">
+        <img src="/assets/images/home/logo.svg" alt="LUMA" height="34" style="display:block;">
+      </a>
+      <button class="navbar-toggler border-0 ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" style="color:rgba(255,255,255,0.8);">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+          <li class="nav-item"><a class="nav-link" href="/">Accueil</a></li>
+          <li class="nav-item"><a class="nav-link" href="/blog">Conseils</a></li>
+          <li class="nav-item"><a class="nav-link" href="/communaute">Communauté</a></li>
+          <li class="nav-item"><a class="nav-link" href="/blog">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="/a-propos">A propos</a></li>
+          <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+        </ul>
+        <div class="ms-lg-3 mt-2 mt-lg-0">
+          <?php if (\App\Core\Session::has('user_id')): ?>
+            <?php $role = \App\Core\Session::get('user_role_slug'); ?>
+            <a class="btn-mon-compte text-decoration-none" href="<?= $role === 'admin' ? '/admin' : ($role === 'expert' ? '/expert/dashboard' : ($role === 'ctt' ? '/ctt/dashboard' : '/dashboard')) ?>">
+              <i class="bi bi-person-fill me-1"></i>Mon compte
+            </a>
+          <?php else: ?>
+            <a class="btn-mon-compte text-decoration-none" href="/auth/login">
+              <i class="bi bi-person-fill me-1"></i>Mon compte
+            </a>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

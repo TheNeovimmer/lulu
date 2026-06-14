@@ -1,9 +1,11 @@
 <!-- Hero Section -->
-<section class="hero-luma position-relative overflow-hidden" style="padding-top:93px;" data-animate="fade-up">
+<section class="hero-luma position-relative overflow-hidden" data-animate="fade-up">
   <!-- Hero background -->
   <div class="hero-luma-bg" aria-hidden="true"></div>
 
-  <div class="container position-relative" style="z-index:3;">
+  <?php require __DIR__ . '/../partials/navbar-front.php'; ?>
+
+  <div class="container position-relative" style="z-index:3; padding-top:93px;">
     <div class="row">
       <div class="col-lg-7">
         <h1 class="hero-luma-title">

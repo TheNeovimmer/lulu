@@ -11,7 +11,7 @@
     <form method="POST" action="/dashboard/profil" enctype="multipart/form-data" class="card-dashboard form-dashboard">
       <?= \App\Core\Session::csrf_field() ?>
       <div class="text-center mb-4">
-        <?php $avatarUrl = $_SESSION['user_avatar'] ?? ($user['avatar'] ?? ''); ?>
+        <?php $avatarUrl = $_SESSION['user_avatar'] ?: ($user['avatar'] ? '/uploads/avatars/' . $user['avatar'] : ''); ?>
         <?php if ($avatarUrl): ?>
           <img src="<?= htmlspecialchars($avatarUrl) ?>" alt="Avatar" class="rounded-circle" width="100" height="100" style="object-fit:cover; border: 3px solid var(--dprimary-subtle);">
         <?php else: ?>

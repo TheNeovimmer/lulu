@@ -45,7 +45,7 @@
       <div class="topbar-right">
         <div class="dropdown">
           <button class="dropdown-toggle topbar-avatar" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="<?= htmlspecialchars($_SESSION['user_avatar'] ?? '/assets/images/default-avatar.png') ?>" alt="">
+            <img src="<?= htmlspecialchars($_SESSION['user_avatar'] ?: '/assets/images/default-avatar.svg') ?>" alt="">
             <span class="d-none d-md-inline"><?= htmlspecialchars($_SESSION['user_name'] ?? 'Utilisateur') ?></span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">

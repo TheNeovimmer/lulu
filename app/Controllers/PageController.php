@@ -16,7 +16,7 @@ class PageController {
             'experts' => 200,
             'satisfaction' => '98%'
         ];
-        View::render('pages/home', compact('featured_articles', 'testimonials', 'faqs', 'stats'), 'front');
+        View::render('pages/home', array_merge(compact('featured_articles', 'testimonials', 'faqs', 'stats'), ['heroFull' => true]), 'front');
     }
 
     public function about() {

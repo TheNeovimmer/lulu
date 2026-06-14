@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/assets/css/enhancements.css">
 </head>
 <body>
+  <?php if (!isset($heroFull) || !$heroFull): ?>
   <nav class="navbar navbar-expand-lg sticky-top" style="background:transparent; padding-top:0;">
     <div class="container">
       <div class="nav-pill-luma d-flex align-items-center w-100">
@@ -48,6 +49,7 @@
       </div>
     </div>
   </nav>
+  <?php endif; ?>
 
   <main class="page-entrance">
     <?= $content ?>
