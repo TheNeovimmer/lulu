@@ -183,6 +183,41 @@ Laragon redirige automatiquement vers `http://localhost/luma/public` si le dossi
 | Maman   | maman@luma.tn     | password     |
 | CTT     | ctt@luma.tn       | password     |
 
+## Installation sur XAMPP (Windows)
+
+**TL;DR — Résumé des étapes :**
+
+1. Copier le projet → `C:\xampp\htdocs\luma\`
+2. Démarrer Apache + MySQL dans le panneau XAMPP
+3. Créer la DB → `http://localhost/phpmyadmin` → nouvelle base `luma`
+4. Importer → sélectionner `luma`, onglet **Importer**, choisir `C:\xampp\htdocs\luma\database.sql`, **Exécuter**
+5. Vérifier le fichier `C:\xampp\htdocs\luma\env.php` (déjà préconfiguré pour Laragon/XAMPP)
+6. Accéder à `http://localhost/luma/public`
+
+### Activer mod_rewrite (indispensable)
+
+1. Ouvrir `C:\xampp\apache\conf\httpd.conf`
+2. Enlever le `#` devant cette ligne si elle est commentée :
+   ```apache
+   LoadModule rewrite_module modules/mod_rewrite.so
+   ```
+3. Chercher `<Directory "C:/xampp/htdocs">` et remplacer `AllowOverride None` par :
+   ```apache
+   AllowOverride All
+   ```
+4. Redémarrer Apache dans le panneau XAMPP
+
+### Comptes de test (mot de passe : `password`)
+
+| Rôle    | Email          |
+|---------|----------------|
+| Admin   | admin@luma.tn  |
+| Expert  | expert@luma.tn |
+| Maman   | maman@luma.tn  |
+| CTT     | ctt@luma.tn    |
+
+---
+
 ## Fonctionnalités
 
 ### Publiques
