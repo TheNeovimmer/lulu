@@ -9,144 +9,139 @@
 ### 1.1 Visiteur (non connecté)
 
 ```mermaid
-usecaseDiagram
-  actor Visiteur as V
+graph LR
+  V((Visiteur))
+  V --> A[Consulter page d'accueil]
+  V --> B[Lire articles]
+  V --> C[Consulter ressources]
+  V --> D[Voir annuaire experts]
+  V --> E[Consulter FAQ]
+  V --> F[S'abonner newsletter]
+  V --> G[Créer un compte]
+  V --> H[Se connecter]
 
-  V --> (Consulter page d'accueil)
-  V --> (Lire articles)
-  V --> (Consulter ressources)
-  V --> (Voir annuaire experts)
-  V --> (Consulter FAQ)
-  V --> (S'abonner newsletter)
-  V --> (Créer un compte)
-  V --> (Se connecter)
-
-  (Créer un compte) ..> (Valider email) : <<include>>
-  (Créer un compte) ..> (Choisir rôle) : <<include>>
-  (Se connecter) ..> (Valider identifiants) : <<include>>
-  (Se connecter) ..> (Réinitialiser mot de passe) : <<extend>>
+  G -.->|«include»| G1[Valider email]
+  G -.->|«include»| G2[Choisir rôle]
+  H -.->|«include»| H1[Valider identifiants]
+  H -.->|«extend»| H2[Réinitialiser mot de passe]
 ```
 
 ### 1.2 Maman
 
 ```mermaid
-usecaseDiagram
-  actor Maman as M
+graph LR
+  M((Maman))
+  M --> A[Gérer profil grossesse]
+  M --> B[Suivre bébé]
+  M --> C[Prendre rendez-vous]
+  M --> D[Consulter messagerie]
+  M --> E[Créer ticket support]
+  M --> F[Donner témoignage]
 
-  M --> (Gérer profil grossesse)
-  M --> (Suivre bébé)
-  M --> (Prendre rendez-vous)
-  M --> (Consulter messagerie)
-  M --> (Créer ticket support)
-  M --> (Donner témoignage)
+  A -.->|«include»| A1[Renseigner date accouchement]
+  A -.->|«include»| A2[Ajouter info médicale]
 
-  (Gérer profil grossesse) ..> (Renseigner date accouchement) : <<include>>
-  (Gérer profil grossesse) ..> (Ajouter info médicale) : <<include>>
+  B -.->|«include»| B1[Ajouter mesure croissance]
+  B -.->|«include»| B2[Enregistrer vaccin]
+  B -.->|«extend»| B3[Écrire souvenir]
 
-  (Suivre bébé) ..> (Ajouter mesure croissance) : <<include>>
-  (Suivre bébé) ..> (Enregistrer vaccin) : <<include>>
-  (Suivre bébé) ..> (Écrire souvenir) : <<extend>>
+  C -.->|«include»| C1[Choisir expert]
+  C -.->|«include»| C2[Choisir créneau]
+  C -.->|«extend»| C3[Annuler rendez-vous]
 
-  (Prendre rendez-vous) ..> (Choisir expert) : <<include>>
-  (Prendre rendez-vous) ..> (Choisir créneau) : <<include>>
-  (Prendre rendez-vous) ..> (Annuler rendez-vous) : <<extend>>
-
-  (Créer ticket support) ..> (Choisir catégorie) : <<include>>
-  (Créer ticket support) ..> (Joindre fichier) : <<extend>>
+  E -.->|«include»| E1[Choisir catégorie]
+  E -.->|«extend»| E2[Joindre fichier]
 ```
 
 ### 1.3 Expert
 
 ```mermaid
-usecaseDiagram
-  actor Expert as E
+graph LR
+  E((Expert))
+  E --> A[Gérer articles]
+  E --> B[Publier ressources]
+  E --> C[Gérer rendez-vous]
+  E --> D[Répondre communauté]
+  E --> F[Gérer tickets assignés]
+  E --> G[Consulter messagerie]
 
-  E --> (Gérer articles)
-  E --> (Publier ressources)
-  E --> (Gérer rendez-vous)
-  E --> (Répondre communauté)
-  E --> (Gérer tickets assignés)
-  E --> (Consulter messagerie)
+  A -.->|«include»| A1[Rédiger contenu]
+  A -.->|«include»| A2[Choisir catégorie]
+  A -.->|«extend»| A3[Programmer publication]
 
-  (Gérer articles) ..> (Rédiger contenu) : <<include>>
-  (Gérer articles) ..> (Choisir catégorie) : <<include>>
-  (Gérer articles) ..> (Programmer publication) : <<extend>>
-
-  (Gérer rendez-vous) ..> (Consulter agenda) : <<include>>
-  (Gérer rendez-vous) ..> (Confirmer rendez-vous) : <<include>>
-  (Gérer rendez-vous) ..> (Proposer nouveau créneau) : <<extend>>
+  C -.->|«include»| C1[Consulter agenda]
+  C -.->|«include»| C2[Confirmer rendez-vous]
+  C -.->|«extend»| C3[Proposer nouveau créneau]
 ```
 
 ### 1.4 CTT (Centre d'appel)
 
 ```mermaid
-usecaseDiagram
-  actor CTT as C
+graph LR
+  C((CTT))
+  C --> A[Gérer tickets support]
+  C --> B[Gérer FAQ]
+  C --> C1[Consulter rapports]
 
-  C --> (Gérer tickets support)
-  C --> (Gérer FAQ)
-  C --> (Consulter rapports)
+  A -.->|«include»| A1[Assigner ticket]
+  A -.->|«include»| A2[Clôturer ticket]
+  A -.->|«extend»| A3[Escalader ticket]
 
-  (Gérer tickets support) ..> (Assigner ticket) : <<include>>
-  (Gérer tickets support) ..> (Clôturer ticket) : <<include>>
-  (Gérer tickets support) ..> (Escalader ticket) : <<extend>>
-
-  (Gérer FAQ) ..> (Ajouter question) : <<include>>
-  (Gérer FAQ) ..> (Modifier réponse) : <<include>>
+  B -.->|«include»| B1[Ajouter question]
+  B -.->|«include»| B2[Modifier réponse]
 ```
 
 ### 1.5 Administrateur
 
 ```mermaid
-usecaseDiagram
-  actor Admin as A
+graph LR
+  A((Admin))
+  A --> A1[Gérer utilisateurs]
+  A --> A2[Gérer articles & catégories]
+  A --> A3[Modérer communauté]
+  A --> A4[Gérer témoignages]
+  A --> A5[Gérer tickets]
+  A --> A6[Paramètres site]
 
-  A --> (Gérer utilisateurs)
-  A --> (Gérer articles & catégories)
-  A --> (Modérer communauté)
-  A --> (Gérer témoignages)
-  A --> (Gérer tickets)
-  A --> (Paramètres site)
+  A1 -.->|«include»| A1a[Consulter profil]
+  A1 -.->|«include»| A1b[Modifier rôle]
+  A1 -.->|«extend»| A1c[Suspendre compte]
 
-  (Gérer utilisateurs) ..> (Consulter profil) : <<include>>
-  (Gérer utilisateurs) ..> (Modifier rôle) : <<include>>
-  (Gérer utilisateurs) ..> (Suspendre compte) : <<extend>>
+  A3 -.->|«include»| A3a[Approuver contenu]
+  A3 -.->|«include»| A3b[Masquer publication]
+  A3 -.->|«extend»| A3c[Bannir utilisateur]
 
-  (Modérer communauté) ..> (Approuver contenu) : <<include>>
-  (Modérer communauté) ..> (Masquer publication) : <<include>>
-  (Modérer communauté) ..> (Bannir utilisateur) : <<extend>>
-
-  (Gérer témoignages) ..> (Approuver) : <<include>>
-  (Gérer témoignages) ..> (Rejeter) : <<include>>
+  A4 -.->|«include»| A4a[Approuver]
+  A4 -.->|«include»| A4b[Rejeter]
 ```
 
 ### 1.6 Général — Hiérarchie des acteurs
 
 ```mermaid
-usecaseDiagram
-  actor Visiteur as V
-  actor Membre as M
-  actor Maman as MA
-  actor Expert as E
-  actor CTT as C
-  actor Admin as A
+graph TB
+  V((Visiteur))
+  M((Membre))
+  MA((Maman))
+  E((Expert))
+  CTT((CTT))
+  A((Admin))
 
   M --|> V
   MA --|> M
   E --|> M
-  C --|> M
+  CTT --|> M
   A --|> M
 
-  V --> (Consulter contenu public)
-  V --> (S'authentifier)
+  V --> Pub[Consulter contenu public]
+  V --> Auth[S'authentifier]
 
-  M --> (Gérer profil)
-  M --> (Notifications)
+  M --> Profil[Gérer profil]
+  M --> Notif[Notifications]
 
-  MA --> (Suivi maternité & rendez-vous)
-  E --> (Contenus éditoriaux & agenda)
-  C --> (Support client & FAQ)
-  A --> (Administration & modération)
+  MA --> M1[Suivi maternité & rendez-vous]
+  E --> E1[Contenus éditoriaux & agenda]
+  CTT --> C1[Support client & FAQ]
+  A --> AD[Administration & modération]
 ```
 
 ---
