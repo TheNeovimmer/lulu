@@ -148,179 +148,213 @@ graph TB
 
 ## 2. Diagramme de Classes
 
+> Classes essentielles avec cardinalités, aggrégation (◇) et composition (◆).
+
 ```mermaid
 classDiagram
 
-  class Router {
-    +get(path, handler)
-    +post(path, handler)
-    +dispatch(method, url)
+  %% ========== NOYAU (Composition) ==========
+  class Routeur {
+    +get(chemin, handler)
+    +post(chemin, handler)
+    +dispatch(méthode, url)
   }
 
-  class Database {
+  class BDD {
     +getInstance()
-    +getConnection()
+    +query(sql, params)
   }
 
-  class View {
-    +render(view, data, layout)
+  class Vue {
+    +render(vue, données, layout)
   }
 
   class Session {
-    +get(key)
-    +set(key, value)
-    +destroy()
+    +get(clé)
+    +set(clé, valeur)
     +csrf_token()
   }
 
-  class Request {
-    +method()
-    +post(key)
-    +get(key)
-    +redirect(url)
+  class Requête {
+    +méthode()
+    +post(clé)
+    +get(clé)
   }
 
-  class Validator {
-    +required(field)
-    +email(field)
-    +passes()
-    +errors()
+  %% ========== CONTRÔLEURS ==========
+  class Contrôleur {
+    #render(vue, données)
   }
 
-  class Model {
-    +find(id)
-    +all(criteria)
-    +create(data)
-    +update(id, data)
-    +delete(id)
-  }
+  class AuthContrôleur
+  class DashboardContrôleur
+  class ExpertContrôleur
+  class AdminContrôleur
+  class CttContrôleur
 
-  class AuthMiddleware {
-    +check()
-  }
-
-  class GuestMiddleware {
-    +check()
-  }
-
-  class RoleMiddleware {
-    +check(roleSlug)
-  }
-
-  class AdminMiddleware {
-    +check()
-  }
-
-  Controller <|-- AuthController
-  Controller <|-- PageController
-  Controller <|-- ArticleController
-  Controller <|-- CommunityController
-  Controller <|-- DashboardController
-  Controller <|-- ExpertController
-  Controller <|-- CttController
-  Controller <|-- TicketController
-  Controller <|-- AdminController
-  Controller <|-- AdminUserController
-  Controller <|-- AdminArticleController
-  Controller <|-- AdminTicketController
-
-  note for Controller "22 controlleurs au total\ntous héritent de Controller"
-
-  BaseRepository <|-- UserRepository
-  BaseRepository <|-- ArticleRepository
-  BaseRepository <|-- TicketRepository
-  BaseRepository <|-- AppointmentRepository
-  BaseRepository <|-- MotherRepository
-  BaseRepository <|-- BabyRepository
-  BaseRepository <|-- NotificationRepository
-
-  note for BaseRepository "19 repositories au total\n1 par table"
-
+  %% ========== SERVICES ==========
   class AuthService {
-    +authenticate(email, password)
-    +register(name, email, password)
+    +authentifier(email, mdp)
+    +inscrire(nom, email, mdp)
   }
 
   class EmailService {
-    +send(to, subject, body)
+    +envoyer(destinataire, sujet, corps)
   }
 
   class TicketService {
-    +createTicket(userId, subject)
-    +assign(ticketId, expertId)
-    +close(ticketId)
+    +créer(utilisateur, sujet)
+    +assigner(ticketId, expertId)
+    +clôturer(ticketId)
   }
 
-  class AppointmentService {
-    +book(motherId, expertId, date)
-    +confirm(appointmentId)
-    +cancel(appointmentId)
+  class RDVService {
+    +réserver(mamanId, expertId, date)
+    +confirmer(rdvId)
+    +annuler(rdvId)
   }
 
   class NotificationService {
-    +create(userId, type, title)
+    +créer(userId, type, titre)
   }
 
-  class CommunityService {
-    +createPost(userId, title)
-    +comment(postId, userId)
+  %% ========== DÉPÔTS ==========
+  class BaseDépôt {
+    +findById(id)
+    +findAll()
+    +créer(données)
+    +supprimer(id)
   }
 
-  AuthController --> AuthService
-  AuthController --> Validator
+  class UtilisateurDépôt
+  class ArticleDépôt
+  class TicketDépôt
+  class RDVDépôt
 
-  DashboardController --> UserRepository
-  DashboardController --> AppointmentRepository
+  %% ========== ENTITÉS MÉTIER ==========
+  class Utilisateur {
+    +id
+    +nom
+    +email
+    +rôle
+    +statut
+  }
 
-  ExpertController --> AppointmentRepository
-  ExpertController --> AvailabilityRepository
+  class Article {
+    +titre
+    +slug
+    +contenu
+    +statut
+  }
 
-  CttController --> TicketRepository
+  class Ticket {
+    +sujet
+    +statut
+    +priorité
+  }
 
-  AppointmentService --> EmailService
-  AppointmentService --> NotificationService
-  TicketService --> EmailService
-  TicketService --> NotificationService
+  class RendezVous {
+    +date
+    +type
+    +statut
+  }
 
-  AuthService --> UserRepository
-  EmailService --> UserRepository
-  AppointmentService --> AppointmentRepository
-  TicketService --> TicketRepository
+  class Bébé {
+    +prénom
+    +dateNaissance
+    +sexe
+  }
 
-  View <-- Controller
-  Session <-- Controller
-  Session <-- AuthMiddleware
-  Request <-- Controller
-  Request <-- AuthMiddleware
-  Database <-- BaseRepository
-  Database <-- Model
+  class Maman {
+    +dateAccouchement
+    +semaineGrossesse
+  }
 
-  class ArticleStatus {
+  class Expert {
+    +spécialité
+    +ville
+  }
+
+  class Catégorie {
+    +nom
+    +slug
+  }
+
+  %% ========== ÉNUMÉRATIONS ==========
+  class StatutArticle {
     <<enum>>
-    DRAFT, PUBLISHED
+    BROUILLON
+    PUBLIÉ
   }
 
-  class UserStatus {
+  class StatutRDV {
     <<enum>>
-    ACTIVE, SUSPENDED, BANNED
+    EN_ATTENTE
+    CONFIRMÉ
+    ANNULÉ
   }
 
-  class AppointmentStatus {
+  class StatutTicket {
     <<enum>>
-    PENDING, CONFIRMED, CANCELLED
+    OUVERT
+    EN_COURS
+    FERMÉ
   }
 
-  class TicketStatus {
-    <<enum>>
-    OPEN, IN_PROGRESS, CLOSED
-  }
+  %% ========== HÉRITAGE ==========
+  Contrôleur <|-- AuthContrôleur
+  Contrôleur <|-- DashboardContrôleur
+  Contrôleur <|-- ExpertContrôleur
+  Contrôleur <|-- AdminContrôleur
+  Contrôleur <|-- CttContrôleur
 
-  class CommentStatus {
-    <<enum>>
-    PENDING, APPROVED, REJECTED
-  }
+  BaseDépôt <|-- UtilisateurDépôt
+  BaseDépôt <|-- ArticleDépôt
+  BaseDépôt <|-- TicketDépôt
+  BaseDépôt <|-- RDVDépôt
 
-  note for ArticleStatus "13 enums au total"
+  %% ========== COMPOSITION (◆) ==========
+  App *-- Routeur : contient
+  App *-- BDD : contient
+  App *-- Vue : contient
+  App *-- Session : contient
+
+  %% ========== AGRÉGATION (◇) ==========
+  AuthContrôleur o-- AuthService : utilise
+  DashboardContrôleur o-- RDVService : utilise
+  DashboardContrôleur o-- TicketService : utilise
+  ExpertContrôleur o-- RDVService : utilise
+  AdminContrôleur o-- UtilisateurDépôt : utilise
+  CttContrôleur o-- TicketDépôt : utilise
+
+  RDVService o-- EmailService : notifie
+  RDVService o-- NotificationService : notifie
+  TicketService o-- EmailService : notifie
+
+  AuthService o-- UtilisateurDépôt : accède
+  RDVService o-- RDVDépôt : accède
+  TicketService o-- TicketDépôt : accède
+
+  %% ========== ASSOCIATIONS AVEC CARDINALITÉS ==========
+  Utilisateur "1" --> "0..*" Article : écrit
+  Utilisateur "1" --> "0..*" Ticket : ouvre
+  Utilisateur "1" --> "0..*" RendezVous : participe
+
+  Maman "1" --> "0..*" Bébé : a
+  Maman "1" --> "0..*" RendezVous : réserve
+
+  Expert "1" --> "0..*" RendezVous : reçoit
+  Expert "1" --> "0..*" Article : publie
+
+  Utilisateur "0..1" --> "0..1" Maman : est
+  Utilisateur "0..1" --> "0..1" Expert : est
+
+  Catégorie "1" --> "0..*" Article : classe
+
+  %% Associations aux énumérations
+  Article --> StatutArticle
+  Ticket --> StatutTicket
+  RendezVous --> StatutRDV
 ```
 
 ---
