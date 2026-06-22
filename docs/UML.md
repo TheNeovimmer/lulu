@@ -6,139 +6,147 @@
 
 ## 1. Diagrammes de Cas d'Utilisation
 
-### 1.1 Par Rôle
+### 1.1 Visiteur (non connecté)
 
 ```mermaid
-graph TB
-  subgraph VISITEUR["👤 Visiteur (non connecté)"]
-    V1[Consulter page d'accueil]
-    V2[Lire articles blog]
-    V3[Consulter ressources]
-    V4[Parcourir communauté]
-    V5[Voir annuaire experts]
-    V6[Page contact]
-    V7[Consulter FAQ]
-    V8[S'abonner newsletter]
-    V9[Créer un compte]
-    V10[Se connecter]
-  end
+usecaseDiagram
+  actor Visiteur as V
+
+  V --> (Consulter page d'accueil)
+  V --> (Lire articles)
+  V --> (Consulter ressources)
+  V --> (Voir annuaire experts)
+  V --> (Consulter FAQ)
+  V --> (S'abonner newsletter)
+  V --> (Créer un compte)
+  V --> (Se connecter)
+
+  (Créer un compte) ..> (Valider email) : <<include>>
+  (Créer un compte) ..> (Choisir rôle) : <<include>>
+  (Se connecter) ..> (Valider identifiants) : <<include>>
+  (Se connecter) ..> (Réinitialiser mot de passe) : <<extend>>
 ```
 
+### 1.2 Maman
+
 ```mermaid
-graph TB
-  subgraph MAMAN["🤰 Maman"]
-    M1[Voir tableau de bord]
-    M2[Gérer profil grossesse]
-    M3[Suivre bébé / croissance]
-    M4[Suivi vaccins]
-    M5[Écrire souvenirs/étapes]
-    M6[Prendre rendez-vous]
-    M7[Messagerie expert]
-    M8[Créer ticket support]
-    M9[Donner témoignage]
-    M10[Se déconnecter]
-  end
+usecaseDiagram
+  actor Maman as M
+
+  M --> (Gérer profil grossesse)
+  M --> (Suivre bébé)
+  M --> (Prendre rendez-vous)
+  M --> (Consulter messagerie)
+  M --> (Créer ticket support)
+  M --> (Donner témoignage)
+
+  (Gérer profil grossesse) ..> (Renseigner date accouchement) : <<include>>
+  (Gérer profil grossesse) ..> (Ajouter info médicale) : <<include>>
+
+  (Suivre bébé) ..> (Ajouter mesure croissance) : <<include>>
+  (Suivre bébé) ..> (Enregistrer vaccin) : <<include>>
+  (Suivre bébé) ..> (Écrire souvenir) : <<extend>>
+
+  (Prendre rendez-vous) ..> (Choisir expert) : <<include>>
+  (Prendre rendez-vous) ..> (Choisir créneau) : <<include>>
+  (Prendre rendez-vous) ..> (Annuler rendez-vous) : <<extend>>
+
+  (Créer ticket support) ..> (Choisir catégorie) : <<include>>
+  (Créer ticket support) ..> (Joindre fichier) : <<extend>>
 ```
 
+### 1.3 Expert
+
 ```mermaid
-graph TB
-  subgraph EXPERT["👨‍⚕️ Expert"]
-    E1[Voir tableau de bord]
-    E2[Gérer articles / publication]
-    E3[Publier ressources]
-    E4[Répondre questions communauté]
-    E5[Gérer tickets assignés]
-    E6[Gérer disponibilités]
-    E7[Confirmer / annuler RDV]
-    E8[Messagerie mamans]
-    E9[Se déconnecter]
-  end
+usecaseDiagram
+  actor Expert as E
+
+  E --> (Gérer articles)
+  E --> (Publier ressources)
+  E --> (Gérer rendez-vous)
+  E --> (Répondre communauté)
+  E --> (Gérer tickets assignés)
+  E --> (Consulter messagerie)
+
+  (Gérer articles) ..> (Rédiger contenu) : <<include>>
+  (Gérer articles) ..> (Choisir catégorie) : <<include>>
+  (Gérer articles) ..> (Programmer publication) : <<extend>>
+
+  (Gérer rendez-vous) ..> (Consulter agenda) : <<include>>
+  (Gérer rendez-vous) ..> (Confirmer rendez-vous) : <<include>>
+  (Gérer rendez-vous) ..> (Proposer nouveau créneau) : <<extend>>
 ```
 
+### 1.4 CTT (Centre d'appel)
+
 ```mermaid
-graph TB
-  subgraph CTT["📞 CTT (Centre d'appel)"]
-    C1[Voir tableau de bord]
-    C2[Gérer tickets support]
-    C3[Gérer FAQ]
-    C4[Consulter rapports / historique]
-    C5[Se déconnecter]
-  end
+usecaseDiagram
+  actor CTT as C
+
+  C --> (Gérer tickets support)
+  C --> (Gérer FAQ)
+  C --> (Consulter rapports)
+
+  (Gérer tickets support) ..> (Assigner ticket) : <<include>>
+  (Gérer tickets support) ..> (Clôturer ticket) : <<include>>
+  (Gérer tickets support) ..> (Escalader ticket) : <<extend>>
+
+  (Gérer FAQ) ..> (Ajouter question) : <<include>>
+  (Gérer FAQ) ..> (Modifier réponse) : <<include>>
 ```
 
+### 1.5 Administrateur
+
 ```mermaid
-graph TB
-  subgraph ADMIN["🔧 Administrateur"]
-    A1[Voir tableau de bord]
-    A2[Gérer utilisateurs & rôles]
-    A3[Gérer articles & catégories]
-    A4[Gérer ressources]
-    A5[Modérer communauté]
-    A6[Gérer témoignages]
-    A7[Gérer tickets]
-    A8[Gérer contacts & newsletter]
-    A9[Gérer FAQ]
-    A10[Paramètres site]
-    A11[Se déconnecter]
-  end
+usecaseDiagram
+  actor Admin as A
+
+  A --> (Gérer utilisateurs)
+  A --> (Gérer articles & catégories)
+  A --> (Modérer communauté)
+  A --> (Gérer témoignages)
+  A --> (Gérer tickets)
+  A --> (Paramètres site)
+
+  (Gérer utilisateurs) ..> (Consulter profil) : <<include>>
+  (Gérer utilisateurs) ..> (Modifier rôle) : <<include>>
+  (Gérer utilisateurs) ..> (Suspendre compte) : <<extend>>
+
+  (Modérer communauté) ..> (Approuver contenu) : <<include>>
+  (Modérer communauté) ..> (Masquer publication) : <<include>>
+  (Modérer communauté) ..> (Bannir utilisateur) : <<extend>>
+
+  (Gérer témoignages) ..> (Approuver) : <<include>>
+  (Gérer témoignages) ..> (Rejeter) : <<include>>
 ```
 
-### 1.2 Général (Tous rôles)
+### 1.6 Général — Hiérarchie des acteurs
 
 ```mermaid
-graph TB
-  subgraph PLATEFORME["Plateforme LUMA"]
-    direction TB
+usecaseDiagram
+  actor Visiteur as V
+  actor Membre as M
+  actor Maman as MA
+  actor Expert as E
+  actor CTT as C
+  actor Admin as A
 
-    subgraph Public["Publique"]
-      V1[Consulter accueil]
-      V2[Lire articles / ressources]
-      V3[Voir FAQ / Contact]
-      V4[Annuaire experts]
-      V5[S'abonner newsletter]
-      V6[Créer compte / Connexion]
-    end
+  M --|> V
+  MA --|> M
+  E --|> M
+  C --|> M
+  A --|> M
 
-    subgraph Maman["Espace Maman"]
-      M1[Tableau de bord]
-      M2[Suivi grossesse / bébé]
-      M3[Rendez-vous & messagerie]
-      M4[Tickets & témoignages]
-    end
+  V --> (Consulter contenu public)
+  V --> (S'authentifier)
 
-    subgraph Expert["Espace Expert"]
-      E1[Tableau de bord]
-      E2[Articles & ressources]
-      E3[Agenda & messagerie]
-      E4[Tickets & communauté]
-    end
+  M --> (Gérer profil)
+  M --> (Notifications)
 
-    subgraph CTT["Espace CTT"]
-      C1[Tableau de bord]
-      C2[Tickets & FAQ]
-      C3[Rapports]
-    end
-
-    subgraph Admin["Espace Admin"]
-      A1[Tableau de bord]
-      A2[Gestion complète]
-      A3[Paramètres & modération]
-    end
-  end
-
-  V1 --> Public
-  V2 --> Public
-
-  M1 --> Maman
-  M2 --> Maman
-
-  E1 --> Expert
-  E2 --> Expert
-
-  C1 --> CTT
-
-  A1 --> Admin
-  A2 --> Admin
+  MA --> (Suivi maternité & rendez-vous)
+  E --> (Contenus éditoriaux & agenda)
+  C --> (Support client & FAQ)
+  A --> (Administration & modération)
 ```
 
 ---
