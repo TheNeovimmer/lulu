@@ -126,11 +126,11 @@ graph TB
   CTT((CTT))
   A((Admin))
 
-  M --|> V
-  MA --|> M
-  E --|> M
-  CTT --|> M
-  A --|> M
+  M -->|étend| V
+  MA -->|étend| M
+  E -->|étend| M
+  CTT -->|étend| M
+  A -->|étend| M
 
   V --> Pub[Consulter contenu public]
   V --> Auth[S'authentifier]
